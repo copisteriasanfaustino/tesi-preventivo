@@ -2,18 +2,18 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Preventivo Stampa Tesi</title>
+  <title>Preventivo Tesi Stampata a Caldo</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
   <style>
     body {
       font-family: sans-serif;
       max-width: 600px;
       margin: 2em auto;
-      background: #f9f9f9;
+      background: #fff8f0;
     }
     h2 {
       text-align: center;
-      color: #2a4d7a;
+      color: #a84300;
       margin-bottom: 1em;
     }
     .card {
@@ -26,7 +26,8 @@
       display: block;
       margin-bottom: 1em;
     }
-    .card input, .card select {
+    .card input,
+    .card select {
       width: 100%;
       padding: 8px;
       box-sizing: border-box;
@@ -34,7 +35,7 @@
     }
     .card button {
       width: 100%;
-      background: #336699;
+      background: #a84300;
       color: #fff;
       border: none;
       border-radius: 4px;
@@ -45,7 +46,7 @@
     }
     #progressContainer {
       display: none;
-      background: #eee;
+      background: #f0e6df;
       border-radius: 4px;
       overflow: hidden;
       margin: 1em 0;
@@ -53,57 +54,38 @@
     #progressBar {
       width: 0;
       height: 8px;
-      background: #336699;
+      background: #a84300;
       transition: width .2s;
     }
     #risultato {
-      background: #eef6ff;
+      background: #fff3e6;
       padding: 15px;
       border-radius: 6px;
       font-size: 1.1em;
       margin-top: 1em;
     }
-    /* checkbox dorso affiancata */
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1em;
-    }
-    .checkbox-label input {
-      margin-right: 8px;
-      flex-shrink: 0;
-    }
   </style>
 </head>
 <body>
-  <h2>🎓 Preventivo Stampa Tesi</h2>
+  <h2>🔥 Preventivo Tesi Stampa a Caldo</h2>
   <div class="card">
     <form onsubmit="return false;">
-      <label>📂 Carica PDF della tesi:
+      <label>
+        📂 Carica PDF della tesi:
         <input type="file" id="pdfFile" accept="application/pdf" required>
       </label>
 
-      <label>🧮 Numero di copie:
+      <label>
+        🧮 Numero di copie:
         <input type="number" id="copie" value="1" min="1">
       </label>
 
-      <label>📘 Tipo di copertina:
-        <select id="copertina">
-          <option value="0">Similpelle (inclusa)</option>
-          <option value="5">Tela/Seta (+€5)</option>
-        </select>
-      </label>
-
-      <label>📑 Stampa:
+      <label>
+        📑 Tipo di stampa:
         <select id="frontalita">
           <option value="0.03">Solo fronte (+€0,03/pagina)</option>
           <option value="0">Fronte/Retro</option>
         </select>
-      </label>
-
-      <label class="checkbox-label">
-        <input type="checkbox" id="dorso">
-        🏷️ Titolo sul dorso (+€6,50 per copia)
       </label>
 
       <button id="btnCalc">Calcola Preventivo</button>
@@ -118,30 +100,27 @@
   </div>
 
   <script>
-    // PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
 
     document.getElementById('btnCalc').onclick = async () => {
-      const f = document.getElementById('pdfFile');
-      if (!f.files.length) return alert('Carica un file PDF.');
-
+      const fileInput = document.getElementById('pdfFile');
+      if (!fileInput.files.length) return alert('Carica un file PDF.');
       document.getElementById('risultato').innerHTML = '';
       document.getElementById('progressContainer').style.display = 'block';
 
-      const buffer = await f.files[0].arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+      const buffer = await fileInput.files[0].arrayBuffer();
+      const pdf    = await pdfjsLib.getDocument({ data: buffer }).promise;
       let bn = 0, col = 0;
 
       for (let i = 1; i <= pdf.numPages; i++) {
-        const pg = await pdf.getPage(i);
-        const vp = pg.getViewport({ scale: 1 });
-        const cv = document.createElement('canvas');
+        const page = await pdf.getPage(i);
+        const vp   = page.getViewport({ scale: 1 });
+        const cv   = document.createElement('canvas');
         cv.width = vp.width; cv.height = vp.height;
-        await pg.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+        await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
 
-        const data = cv.getContext('2d')
-                       .getImageData(0,0,cv.width,cv.height).data;
+        const data = cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data;
         let isColor = false;
         for (let p = 0; p < data.length; p += 4) {
           if (data[p]!==data[p+1] || data[p+1]!==data[p+2]) {
@@ -150,44 +129,31 @@
         }
         isColor ? col++ : bn++;
 
-        // aggiorna barra
         const pct = Math.round((i/pdf.numPages)*100);
         document.getElementById('progressBar').style.width = pct + '%';
         document.getElementById('progressText').innerText =
           `Pagina ${i} di ${pdf.numPages} (${pct}%)`;
       }
 
-      // calcolo prezzi
-      const copie    = +document.getElementById('copie').value;
-      const copVal   = +document.getElementById('copertina').value;
-      const extraF   = +document.getElementById('frontalita').value;
-      const hasDorso = document.getElementById('dorso').checked;
+      const copie  = +document.getElementById('copie').value;
+      const extraF = +document.getElementById('frontalita').value;
 
-      let basePrice = 35;
-      if (copie === 2) basePrice = 27.5;
-      if (copie >= 3) basePrice = 22.5;
-
-      const costBase  = basePrice * copie;
-      const costCover = copVal     * copie;
-      const costBN    = bn         * (0.07 + extraF) * copie;
-      const costCol   = col        * (0.50 + extraF) * copie;
-      const costDorso = hasDorso   ? 6.5 * copie : 0;
-      const total     = costBase + costCover + costBN + costCol + costDorso;
+      const basePrice = 20 * copie;
+      const costBN    = bn  * (0.07 + extraF) * copie;
+      const costCol   = col * (0.50 + extraF) * copie;
+      const total     = basePrice + costBN + costCol;
       const perCopy   = total / copie;
 
       document.getElementById('risultato').innerHTML = `
         <strong>🧾 Riepilogo Preventivo</strong><br><br>
-        📄 B/N: ${bn} pagine<br>
-        🎨 Colori: ${col} pagine<br><br>
-        📦 Prezzo base: €${basePrice.toFixed(2)} × ${copie} = <strong>€${costBase.toFixed(2)}</strong><br>
-        📘 Copertina: €${copVal.toFixed(2)} × ${copie} = €${costCover.toFixed(2)}<br>
+        📄 Pagine B/N: ${bn}<br>
+        🎨 Pagine a colori: ${col}<br><br>
+        📦 Prezzo fisso: €20.00 × ${copie} = <strong>€${basePrice.toFixed(2)}</strong><br>
         🖨️ Stampa B/N: €${(0.07+extraF).toFixed(2)} × ${bn} × ${copie} = €${costBN.toFixed(2)}<br>
-        🎨 Stampa Colori: €${(0.50+extraF).toFixed(2)} × ${col} × ${copie} = €${costCol.toFixed(2)}<br>
-        ${hasDorso ? `🏷️ Dorso: €6,50 × ${copie} = €${costDorso.toFixed(2)}<br>` : ''}
-        <br><strong>💰 Totale: €${total.toFixed(2)}</strong><br>
+        🎨 Stampa colori: €${(0.50+extraF).toFixed(2)} × ${col} × ${copie} = €${costCol.toFixed(2)}<br><br>
+        <strong>💰 Totale: €${total.toFixed(2)}</strong><br>
         📊 Per copia: €${perCopy.toFixed(2)}
       `;
-
       document.getElementById('progressContainer').style.display = 'none';
     };
   </script>
