@@ -2,153 +2,156 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Modulo Ordine Tesi</title>
+  <title>Preventivo Tesi Stampata a Caldo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: auto;
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 2em auto;
+      background: #fff8f0;
+    }
+    h2 {
+      text-align: center;
+      color: #a84300;
+      margin-bottom: 1em;
+    }
+    .card {
+      background: #fff;
       padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
     }
-    label { display: block; margin: 10px 0 5px; }
-    input, select, textarea {
-      width: 100%; padding: 8px;
-      margin-bottom: 15px;
+    .card label {
+      display: block;
+      margin-bottom: 1em;
     }
-    .copertine {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    .card input, .card select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      margin-top: 4px;
     }
-    .copertine img {
-      width: 130px;
-      border: 1px solid #ccc;
-      padding: 5px;
+    .card button {
+      width: 100%;
+      background: #a84300;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 14px 0;
+      font-size: 1.1em;
+      cursor: pointer;
+      margin-top: 1em;
     }
-    #prezzo {
-      font-weight: bold;
-      font-size: 1.2em;
-      color: #007700;
+    #progressContainer {
+      display: none;
+      background: #f0e6df;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 1em 0;
+    }
+    #progressBar {
+      width: 0;
+      height: 8px;
+      background: #a84300;
+      transition: width .2s;
+    }
+    #risultato {
+      background: #fff3e6;
+      padding: 15px;
+      border-radius: 6px;
+      font-size: 1.1em;
+      margin-top: 1em;
     }
   </style>
 </head>
 <body>
-  <h1>Modulo Ordine Tesi</h1>
-  <form oninput="calcolaPrezzo()">
-    <label for="nome">Nome e Cognome</label>
-    <input type="text" id="nome" name="nome" required>
+  <h2>🔥 Preventivo Tesi Stampa a Caldo</h2>
+  <div class="card">
+    <form onsubmit="return false;">
+      <label> 📂 Carica PDF della tesi:
+        <input type="file" id="pdfFile" accept="application/pdf" required>
+      </label>
+      <label> 🧮 Numero di copie:
+        <input type="number" id="copie" value="1" min="1">
+      </label>
+      <label> 📑 Tipo di stampa:
+        <select id="frontalita">
+          <option value="0.03">Solo fronte (+€0,03/pagina)</option>
+          <option value="0">Fronte/Retro</option>
+        </select>
+      </label>
+      <button id="btnCalc">Calcola Preventivo</button>
+    </form>
 
-    <label for="copie">Numero copie</label>
-    <input type="number" id="copie" name="copie" value="1" min="1">
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+      <div id="progressText" style="font-size:.9em; padding:4px;"></div>
+    </div>
 
-    <label for="fronteRetro">Stampa</label>
-    <select id="fronteRetro" name="fronteRetro">
-      <option value="no">Solo fronte</option>
-      <option value="si">Fronte-retro</option>
-    </select>
-
-    <label for="colore">Colore copertina</label>
-    <select id="colore" name="colore">
-      <option value="">-- Seleziona --</option>
-      <option value="panama_azzurro">Panama Azzurro</option>
-      <option value="panama_rosso">Panama Rosso</option>
-      <option value="panama_verde">Panama Verde</option>
-      <option value="panama_blu">Panama Blu</option>
-      <option value="panama_giallo">Panama Giallo</option>
-      <option value="venus_rosso">Venus Rosso</option>
-      <option value="venus_nero">Venus Nero</option>
-      <option value="venus_bordeaux">Venus Bordeaux</option>
-      <option value="venus_viola">Venus Viola</option>
-      <option value="venus_blu">Venus Blu</option>
-      <option value="lux_blu">Lux Blu</option>
-      <option value="lux_verde">Lux Verde</option>
-      <option value="lux_grigio">Lux Grigio</option>
-      <option value="lux_rosso">Lux Rosso</option>
-      <option value="lux_marrone">Lux Marrone</option>
-      <option value="camoscio_marrone">Camoscio Marrone</option>
-      <option value="camoscio_verde">Camoscio Verde</option>
-      <option value="camoscio_rosso">Camoscio Rosso</option>
-      <option value="camoscio_grigio">Camoscio Grigio</option>
-      <option value="camoscio_blu">Camoscio Blu</option>
-      <option value="seta_verde">Seta Verde</option>
-      <option value="seta_rossa">Seta Rossa</option>
-      <option value="seta_blu">Seta Blu</option>
-      <option value="seta_nera">Seta Nera</option>
-      <option value="seta_viola">Seta Viola</option>
-      <option value="seta_argento">Seta Argento</option>
-      <option value="seta_oro">Seta Oro</option>
-      <option value="seta_marrone">Seta Marrone</option>
-      <option value="safari_giallo">Safari Giallo</option>
-      <option value="safari_rosso">Safari Rosso</option>
-      <option value="safari_verde">Safari Verde</option>
-      <option value="safari_marrone">Safari Marrone</option>
-      <option value="safari_blu">Safari Blu</option>
-      <option value="arena_beige">Arena Beige</option>
-      <option value="arena_azzurro">Arena Azzurro</option>
-      <option value="arena_rosso">Arena Rosso</option>
-      <option value="arena_verde">Arena Verde</option>
-      <option value="arena_marrone">Arena Marrone</option>
-      <option value="arena_blu">Arena Blu</option>
-    </select>
-
-    <label for="note">Note aggiuntive</label>
-    <textarea id="note" name="note"></textarea>
-
-    <p>Prezzo totale: <span id="prezzo">€15</span></p>
-    <button type="submit">Invia ordine</button>
-  </form>
-
-  <h2>Anteprima copertine</h2>
-  <div class="copertine">
-    <img src="panama_azzurro.png" alt="Panama Azzurro">
-    <img src="panama_rosso.png" alt="Panama Rosso">
-    <img src="panama_verde.png" alt="Panama Verde">
-    <img src="panama_blu.png" alt="Panama Blu">
-    <img src="panama_giallo.png" alt="Panama Giallo">
-    <img src="venus_rosso.png" alt="Venus Rosso">
-    <img src="venus_nero.png" alt="Venus Nero">
-    <img src="venus_bordeaux.png" alt="Venus Bordeaux">
-    <img src="venus_viola.png" alt="Venus Viola">
-    <img src="venus_blu.png" alt="Venus Blu">
-    <img src="lux_blu.png" alt="Lux Blu">
-    <img src="lux_verde.png" alt="Lux Verde">
-    <img src="lux_grigio.png" alt="Lux Grigio">
-    <img src="lux_rosso.png" alt="Lux Rosso">
-    <img src="lux_marrone.png" alt="Lux Marrone">
-    <img src="camoscio_marrone.png" alt="Camoscio Marrone">
-    <img src="camoscio_verde.png" alt="Camoscio Verde">
-    <img src="camoscio_rosso.png" alt="Camoscio Rosso">
-    <img src="camoscio_grigio.png" alt="Camoscio Grigio">
-    <img src="camoscio_blu.png" alt="Camoscio Blu">
-    <img src="seta_verde.png" alt="Seta Verde">
-    <img src="seta_rossa.png" alt="Seta Rossa">
-    <img src="seta_blu.png" alt="Seta Blu">
-    <img src="seta_nera.png" alt="Seta Nera">
-    <img src="seta_viola.png" alt="Seta Viola">
-    <img src="seta_argento.png" alt="Seta Argento">
-    <img src="seta_oro.png" alt="Seta Oro">
-    <img src="seta_marrone.png" alt="Seta Marrone">
-    <img src="safari_giallo.png" alt="Safari Giallo">
-    <img src="safari_rosso.png" alt="Safari Rosso">
-    <img src="safari_verde.png" alt="Safari Verde">
-    <img src="safari_marrone.png" alt="Safari Marrone">
-    <img src="safari_blu.png" alt="Safari Blu">
-    <img src="arena_beige.png" alt="Arena Beige">
-    <img src="arena_azzurro.png" alt="Arena Azzurro">
-    <img src="arena_rosso.png" alt="Arena Rosso">
-    <img src="arena_verde.png" alt="Arena Verde">
-    <img src="arena_marrone.png" alt="Arena Marrone">
-    <img src="arena_blu.png" alt="Arena Blu">
+    <div id="risultato"></div>
   </div>
 
   <script>
-    function calcolaPrezzo() {
-      let copie = parseInt(document.getElementById("copie").value);
-      let fronteRetro = document.getElementById("fronteRetro").value;
-      let prezzo = 15 + ((copie - 1) * 5);
-      if (fronteRetro === "si") prezzo += 2;
-      document.getElementById("prezzo").textContent = "€" + prezzo;
-    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
+
+    document.getElementById('btnCalc').onclick = async () => {
+      const fileInput = document.getElementById('pdfFile');
+      if (!fileInput.files.length) return alert('Carica un file PDF.');
+
+      document.getElementById('risultato').innerHTML = '';
+      document.getElementById('progressContainer').style.display = 'block';
+
+      const buffer = await fileInput.files[0].arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+
+      let bn = 0, col = 0;
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const vp = page.getViewport({ scale: 1 });
+        const cv = document.createElement('canvas');
+        cv.width = vp.width;
+        cv.height = vp.height;
+        await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+        const data = cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data;
+
+        let isColor = false;
+        for (let p = 0; p < data.length; p += 4) {
+          if (data[p] !== data[p+1] || data[p+1] !== data[p+2]) {
+            isColor = true;
+            break;
+          }
+        }
+
+        isColor ? col++ : bn++;
+        const pct = Math.round((i/pdf.numPages)*100);
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('progressText').innerText = `Pagina ${i} di ${pdf.numPages} (${pct}%)`;
+      }
+
+      const copie = +document.getElementById('copie').value;
+      const extraF = +document.getElementById('frontalita').value;
+
+      const basePrice = 20 * copie;
+      const costBN = bn * (0.07 + extraF) * copie;
+      const costCol = col * (0.50 + extraF) * copie;
+      const total = basePrice + costBN + costCol;
+      const perCopy = total / copie;
+
+      document.getElementById('risultato').innerHTML = `
+        <strong>🧾 Riepilogo Preventivo</strong><br><br>
+        📄 Pagine B/N: ${bn}<br>
+        🎨 Pagine a colori: ${col}<br><br>
+        📦 Prezzo fisso: €20.00 × ${copie} = <strong>€${basePrice.toFixed(2)}</strong><br>
+        🖨️ Stampa B/N: €${(0.07+extraF).toFixed(2)} × ${bn} × ${copie} = €${costBN.toFixed(2)}<br>
+        🎨 Stampa colori: €${(0.50+extraF).toFixed(2)} × ${col} × ${copie} = €${costCol.toFixed(2)}<br><br>
+        <strong>💰 Totale: €${total.toFixed(2)}</strong><br>
+        📊 Per copia: €${perCopy.toFixed(2)}
+      `;
+
+      document.getElementById('progressContainer').style.display = 'none';
+    };
   </script>
 </body>
 </html>
