@@ -79,7 +79,86 @@
       </label>
       <label>🧮 Numero di copie:
         <input type="number" id="copie" value="1" min="1">
-      </label>
+
+<label>🎨 Scelta copertina:</label><br>
+<select name="copertina" required>
+  <optgroup label="Panama">
+    <option value="panama_azzurro">Azzurro</option>
+    <option value="panama_bianco">Bianco</option>
+    <option value="panama_celeste">Celeste</option>
+    <option value="panama_laguna">Laguna</option>
+    <option value="panama_lavanda">Lavanda</option>
+    <option value="panama_malva">Malva</option>
+    <option value="panama_rosa">Rosa</option>
+    <option value="panama_rosa_antico">Rosa Antico</option>
+    <option value="panama_turchese">Turchese</option>
+    <option value="panama_viola">Viola</option>
+  </optgroup>
+  <optgroup label="Perla">
+    <option value="perla_arancio">Arancio</option>
+    <option value="perla_avorio">Avorio</option>
+    <option value="perla_blu">Blu</option>
+    <option value="perla_bordeaux">Bordeaux</option>
+    <option value="perla_giallo">Giallo</option>
+    <option value="perla_grigio">Grigio</option>
+    <option value="perla_navy">Navy</option>
+    <option value="perla_nocciola">Nocciola</option>
+    <option value="perla_rosso">Rosso</option>
+    <option value="perla_verde">Verde</option>
+  </optgroup>
+  <optgroup label="Venus">
+    <option value="venus_avio">Avio</option>
+    <option value="venus_blu">Blu</option>
+    <option value="venus_blu_elettrico">Blu Elettrico</option>
+    <option value="venus_bordeaux">Bordeaux</option>
+    <option value="venus_ciclamino">Ciclamino</option>
+    <option value="venus_cipria">Cipria</option>
+    <option value="venus_denim">Denim</option>
+    <option value="venus_fucsia">Fucsia</option>
+    <option value="venus_grigio">Grigio</option>
+    <option value="venus_lilla">Lilla</option>
+    <option value="venus_lime">Lime</option>
+    <option value="venus_nero">Nero</option>
+    <option value="venus_rosso">Rosso</option>
+    <option value="venus_sabbia">Sabbia</option>
+    <option value="venus_tiffany">Tiffany</option>
+    <option value="venus_verde">Verde</option>
+  </optgroup>
+</select><br><br>
+
+<!-- Preview -->
+<div id="wrapperAnteprima" style="margin-bottom:1em; display:none;">
+  <label>🔍 Anteprima copertina:</label><br>
+  <img
+    id="anteprimaCopertina"
+    src=""
+    alt="Anteprima copertina"
+    style="max-width:200px; border:1px solid #ccc; padding:4px; border-radius:4px;"
+  >
+</div>
+
+<script>
+  (function() {
+    const select = document.querySelector('select[name="copertina"]');
+    const wrapper = document.getElementById('wrapperAnteprima');
+    const img = document.getElementById('anteprimaCopertina');
+
+    select.addEventListener('change', () => {
+      const val = select.value;
+      if (!val) {
+        wrapper.style.display = 'none';
+        img.src = '';
+        return;
+      }
+      // Se le immagini sono nella stessa cartella di index.html:
+      img.src = `${val}.png`;
+      // Se invece sono in /img/:
+      // img.src = `img/${val}.png`;
+      wrapper.style.display = 'block';
+    });
+  })();
+</script>
+
       <label>📑 Tipo di stampa:
         <select id="frontalita">
           <option value="0.03">Solo fronte (+€0,03/pagina)</option>
