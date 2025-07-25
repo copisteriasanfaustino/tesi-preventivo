@@ -11,7 +11,7 @@
       padding: 20px;
     }
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
       background: #fff;
       padding: 20px;
@@ -38,14 +38,29 @@
       padding: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
+      box-sizing: border-box;
     }
-    img#coverPreview {
-      display: block;
+    #coverGrid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
       margin-top: 10px;
-      max-width: 120px;
-      height: auto;
-      border: 1px solid #ddd;
+    }
+    .cover-item {
+      width: 100px;
+      cursor: pointer;
+      border: 2px solid transparent;
       border-radius: 4px;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .cover-item.selected {
+      border-color: #007bff;
+    }
+    .cover-item img {
+      display: block;
+      width: 100%;
+      height: auto;
     }
     progress {
       width: 100%;
@@ -72,41 +87,49 @@
       color: #333;
     }
   </style>
-  <!-- PDF.js per contare le pagine PDF -->
+  <!-- PDF.js per contare e renderizzare le pagine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Preventivo Stampa PDF</h1>
 
-    <!-- 1. Upload e conteggio pagine -->
+    <!-- Prezzi configurabili -->
+    <div class="form-group">
+      <label for="costBw">Prezzo per pagina B/N (€):</label>
+      <input type="number" id="costBw" value="0.05" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label for="costColor">Prezzo per pagina a colori (€):</label>
+      <input type="number" id="costColor" value="0.10" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label for="surchargeFront">Supplemento solo fronte per pagina (€):</label>
+      <input type="number" id="surchargeFront" value="0.03" step="0.01" />
+    </div>
+
+    <!-- Upload e analisi PDF -->
     <div class="form-group">
       <label for="pdfFile">📂 Carica il tuo PDF:</label>
       <input type="file" id="pdfFile" accept="application/pdf" />
       <progress id="loadProgress" value="0" max="100"></progress>
       <p id="pageInfo" style="display:none;">
-        Pagine totali: <span id="pageCount">0</span>
+        Pagine totali: <span id="pageCount">0</span> —
+        B/N: <span id="bwCount">0</span>, Colori: <span id="colorCount">0</span>
       </p>
-      <div id="colorInput" class="form-group" style="display:none;">
-        <label for="colorPages">📑 Quante pagine a colori?</label>
-        <input type="number" id="colorPages" value="0" min="0" />
-      </div>
     </div>
 
-    <!-- 2. Selezione copertina -->
+    <!-- Griglia copertine -->
     <div class="form-group">
-      <label for="coverSelect">🎨 Scegli una copertina:</label>
-      <select id="coverSelect">
-        <option value="">Caricamento in corso…</option>
-      </select>
-      <img id="coverPreview" src="" alt="Anteprima copertina" />
+      <label>🎨 Scegli una copertina:</label>
+      <div id="coverGrid">Caricamento copertine…</div>
     </div>
 
-    <!-- 3. Opzioni di stampa -->
+    <!-- Opzioni di stampa -->
     <div class="form-group">
       <label for="printType">🔁 Tipo di stampa:</label>
       <select id="printType">
-        <option value="front">Solo fronte (+€0,03/pagina)</option>
+        <option value="front">Solo fronte</option>
         <option value="duplex">Fronte-retro</option>
       </select>
     </div>
@@ -115,99 +138,115 @@
       <input type="number" id="copies" value="1" min="1" />
     </div>
 
-    <!-- 4. Calcolo e risultato -->
+    <!-- Bottone e risultato -->
     <button id="calcBtn">🧮 Calcola preventivo</button>
     <p id="quoteResult">💶 Preventivo: €0.00</p>
   </div>
 
   <script>
-    // 1. Carica dinamicamente le copertine dal tuo repo GitHub
+    let selectedCoverUrl = '';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCovers();
+      document.getElementById('pdfFile').addEventListener('change', handlePdf);
+      document.getElementById('calcBtn').addEventListener('click', calcQuote);
+    });
+
+    // 1. Carica le copertine dal repo (root della cartella)
     async function loadCovers() {
-      const apiUrl = 'https://api.github.com/repos/copisteriasanfaustino/tesi-preventivo/contents/assets/copertine';
-      const select = document.getElementById('coverSelect');
-      select.innerHTML = '<option value="">Seleziona copertina…</option>';
+      const apiUrl = 'https://api.github.com/repos/copisteriasanfaustino/tesi-preventivo/contents';
+      const grid = document.getElementById('coverGrid');
+      grid.innerHTML = '';
       try {
-        const res   = await fetch(apiUrl);
+        const res = await fetch(apiUrl);
         const files = await res.json();
         files
-          .filter(f => /\.(jpe?g|png|gif)$/i.test(f.name))
+          .filter(f => /\.(jpe?g|png)$/i.test(f.name))
           .forEach(f => {
-            const opt = document.createElement('option');
-            opt.value = f.download_url;
-            opt.text  = f.name.replace(/\.(jpe?g|png|gif)$/i, '');
-            select.appendChild(opt);
+            const item = document.createElement('div');
+            item.className = 'cover-item';
+            const img = document.createElement('img');
+            img.src = f.download_url;
+            img.alt = f.name;
+            item.appendChild(img);
+            item.addEventListener('click', () => {
+              document.querySelectorAll('.cover-item')
+                      .forEach(i => i.classList.remove('selected'));
+              item.classList.add('selected');
+              selectedCoverUrl = f.download_url;
+            });
+            grid.appendChild(item);
           });
       } catch (e) {
-        console.error('Impossibile caricare copertine:', e);
-        select.innerHTML = '<option value="">Errore nel caricamento</option>';
+        grid.innerText = 'Errore caricamento copertine';
+        console.error(e);
       }
     }
 
-    // 2. Anteprima copertina al cambio di selezione
-    document.getElementById('coverSelect').addEventListener('change', () => {
-      const src = document.getElementById('coverSelect').value;
-      document.getElementById('coverPreview').src = src;
-    });
-
-    // 3. Conteggio pagine PDF con PDF.js e progress bar
-    document.getElementById('pdfFile').addEventListener('change', async (e) => {
+    // 2. Analisi PDF: conteggio B/N vs colore
+    async function handlePdf(e) {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       const progress = document.getElementById('loadProgress');
-      const pageInfo = document.getElementById('pageInfo');
-      const colorDiv = document.getElementById('colorInput');
-
+      const info = document.getElementById('pageInfo');
       progress.style.display = 'block';
-      pageInfo.style.display = 'none';
-      colorDiv.style.display = 'none';
+      info.style.display = 'none';
 
-      reader.onprogress = (evt) => {
+      reader.onprogress = evt => {
         if (evt.lengthComputable) {
-          const p = Math.round((evt.loaded / evt.total) * 100);
-          progress.value = p;
+          progress.value = Math.round(evt.loaded / evt.total * 100);
         }
       };
-
       reader.onload = async () => {
         const loadingTask = pdfjsLib.getDocument({ data: reader.result });
-        loadingTask.onProgress = (p) => {
-          progress.value = Math.round((p.loaded / p.total) * 100);
-        };
         const pdf = await loadingTask.promise;
+        let colorCount = 0;
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const vp = page.getViewport({ scale: 0.2 });
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = vp.width;
+          canvas.height = vp.height;
+          await page.render({ canvasContext: ctx, viewport: vp }).promise;
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+          let isColor = false;
+          for (let j = 0; j < imgData.length; j += 4 * 20) {
+            const r = imgData[j], g = imgData[j+1], b = imgData[j+2];
+            if (Math.abs(r-g) > 15 || Math.abs(r-b) > 15 || Math.abs(g-b) > 15) {
+              isColor = true;
+              break;
+            }
+          }
+          if (isColor) colorCount++;
+          progress.value = Math.round(i / pdf.numPages * 100);
+        }
         const total = pdf.numPages;
-
         document.getElementById('pageCount').innerText = total;
-        pageInfo.style.display = 'block';
-        colorDiv.style.display = 'block';
+        document.getElementById('colorCount').innerText = colorCount;
+        document.getElementById('bwCount').innerText = total - colorCount;
         progress.style.display = 'none';
+        info.style.display   = 'block';
       };
-
       reader.readAsArrayBuffer(file);
-    });
+    }
 
-    // 4. Calcolo preventivo
-    document.getElementById('calcBtn').addEventListener('click', () => {
-      const totalPages = parseInt(document.getElementById('pageCount').innerText) || 0;
-      const colorPages = parseInt(document.getElementById('colorPages').value) || 0;
-      const bnPages    = totalPages - colorPages;
-      const copies     = parseInt(document.getElementById('copies').value) || 1;
-      const type       = document.getElementById('printType').value;
-
-      const costBn    = 0.05;
-      const costColor = 0.10;
-      const surcharge = (type === 'front') ? 0.03 : 0;
-
-      const perCopy = (bnPages * costBn + colorPages * costColor) + (totalPages * surcharge);
+    // 3. Calcola il preventivo
+    function calcQuote() {
+      const bw     = parseInt(document.getElementById('bwCount').innerText) || 0;
+      const col    = parseInt(document.getElementById('colorCount').innerText) || 0;
+      const copies = parseInt(document.getElementById('copies').value) || 1;
+      const type   = document.getElementById('printType').value;
+      const costBw = parseFloat(document.getElementById('costBw').value);
+      const costCol= parseFloat(document.getElementById('costColor').value);
+      const supF   = parseFloat(document.getElementById('surchargeFront').value);
+      const surcharge = (type === 'front') ? supF : 0;
+      const perCopy = bw * costBw + col * costCol + (bw + col) * surcharge;
       const total   = perCopy * copies;
-
       document.getElementById('quoteResult').innerText =
         `💶 Preventivo: €${total.toFixed(2)}`;
-    });
-
-    // Inizializza tutto a pagina caricata
-    document.addEventListener('DOMContentLoaded', loadCovers);
+    }
   </script>
 </body>
 </html>
