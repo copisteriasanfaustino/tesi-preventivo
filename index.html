@@ -2,184 +2,212 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Modulo Preventivo Tesi</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+  <title>Preventivo Stampa PDF</title>
   <style>
-    body { font-family: sans-serif; max-width: 700px; margin: 2em auto; background: #fffaf3; }
-    label { display: block; margin-top: 1em; font-weight: bold; }
-    input, select { padding: 0.5em; width: 100%; max-width: 400px; margin-top: 5px; }
-    button { padding: 0.7em 1.2em; background: #a84300; color: white; border: none; border-radius: 4px; margin-top: 1.5em; cursor: pointer; }
-    #preview { margin-top: 1em; max-width: 250px; display: none; border: 1px solid #ccc; }
-    #progress { margin-top: 1em; height: 10px; background: #ddd; width: 100%; max-width: 400px; border-radius: 4px; overflow: hidden; }
-    #bar { height: 100%; width: 0%; background: #a84300; transition: width 0.2s; }
-    #result { margin-top: 2em; background: #fff3e6; padding: 1em; border-radius: 6px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin-top: 0;
+      color: #333;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #555;
+    }
+    input[type="file"],
+    select,
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    img#coverPreview {
+      display: block;
+      margin-top: 10px;
+      max-width: 120px;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    progress {
+      width: 100%;
+      height: 16px;
+      margin-top: 5px;
+      display: none;
+    }
+    button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    p#quoteResult {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #333;
+    }
   </style>
-  <h2>Preventivo Tesi Stampata a Caldo</h2>
-
-  <label for="pdf">📄 Carica PDF:</label>
-  <input type="file" id="pdf" accept="application/pdf" />
-
-  <label for="copie">📦 Numero copie:</label>
-  <input type="number" id="copie" value="1" min="1" />
-
-  <label for="stampa">🖨️ Tipo di stampa:</label>
-  <select id="stampa">
-    <option value="0.03">Solo fronte (+€0,03/pagina)</option>
-    <option value="0">Fronte-retro</option>
-  </select>
-
-  <label for="copertina">🎨 Colore copertina:</label>
-  <select id="copertina">
-    <option value="">-- Seleziona --</option>
-    <option value="panama_azzurro">Panama Azzurro</option>
-    <option value="panama_bianco">Panama Bianco</option>
-    <option value="panama_celeste">Panama Celeste</option>
-    <option value="panama_laguna">Panama Laguna</option>
-    <option value="panama_lavanda">Panama Lavanda</option>
-    <option value="panama_malva">Panama Malva</option>
-    <option value="panama_rosa">Panama Rosa</option>
-    <option value="panama_rosa_antico">Panama Rosa Antico</option>
-    <option value="panama_turchese">Panama Turchese</option>
-    <option value="panama_viola">Panama Viola</option>
-    <option value="perla_arancio">Perla Arancio</option>
-    <option value="perla_avorio">Perla Avorio</option>
-    <option value="perla_blu">Perla Blu</option>
-    <option value="perla_bordeaux">Perla Bordeaux</option>
-    <option value="perla_giallo">Perla Giallo</option>
-    <option value="perla_grigio">Perla Grigio</option>
-    <option value="perla_navy">Perla Navy</option>
-    <option value="perla_nocciola">Perla Nocciola</option>
-    <option value="perla_rosso">Perla Rosso</option>
-    <option value="perla_verde">Perla Verde</option>
-    <option value="venus_avio">Venus Avio</option>
-    <option value="venus_blu">Venus Blu</option>
-    <option value="venus_blu_elettrico">Venus Blu Elettrico</option>
-    <option value="venus_bordeaux">Venus Bordeaux</option>
-    <option value="venus_ciclamino">Venus Ciclamino</option>
-    <option value="venus_cipria">Venus Cipria</option>
-    <option value="venus_denim">Venus Denim</option>
-    <option value="venus_fucsia">Venus Fucsia</option>
-    <option value="venus_grigio">Venus Grigio</option>
-    <option value="venus_lilla">Venus Lilla</option>
-    <option value="venus_lime">Venus Lime</option>
-    <option value="venus_nero">Venus Nero</option>
-    <option value="venus_rosso">Venus Rosso</option>
-    <option value="venus_sabbia">Venus Sabbia</option>
-    <option value="venus_tiffany">Venus Tiffany</option>
-    <option value="venus_verde">Venus Verde</option>
-  </select>
-
-  <img id="preview" src="" alt="Copertina selezionata">
-
-  <button id="calcola">Calcola Preventivo</button>
-
-  <div id="progress"><div id="bar"></div></div>
-
-  <div id="result"></div>
-
-  <script>
-    const copertinaSelect = document.getElementById("copertina");
-    const preview = document.getElementById("preview");
-
-    copertinaSelect.addEventListener("change", () => {
-      const val = copertinaSelect.value;
-      if (val) {
-        preview.src = val + ".png";
-        preview.alt = copertinaSelect.options[copertinaSelect.selectedIndex].text;
-        preview.style.display = "block";
-      } else {
-        preview.style.display = "none";
-      }
-    });
-
-    document.getElementById("calcola").onclick = async () => {
-      const file = document.getElementById("pdf").files[0];
-      if (!file) return alert("Carica un file PDF.");
-
-      const copie = +document.getElementById("copie").value || 1;
-      const extra = +document.getElementById("stampa").value;
-
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const buffer = reader.result;
-        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-
-        let bn = 0, col = 0;
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const vp = page.getViewport({ scale: 1 });
-          const cv = document.createElement("canvas");
-          cv.width = vp.width; cv.height = vp.height;
-          await page.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise;
-          const img = cv.getContext("2d").getImageData(0,0,cv.width,cv.height).data;
-
-          let isColor = false;
-          for (let p = 0; p < img.length; p += 4) {
-            if (img[p] !== img[p+1] || img[p+1] !== img[p+2]) {
-              isColor = true; break;
-            }
-          }
-          isColor ? col++ : bn++;
-          document.getElementById("bar").style.width = Math.round((i/pdf.numPages)*100) + "%";
-        }
-
-        const base = 20 * copie;
-        const costBN = bn * (0.07 + extra) * copie;
-        const costCol = col * (0.50 + extra) * copie;
-        const totale = base + costBN + costCol;
-        const perCopia = totale / copie;
-
-        document.getElementById("result").innerHTML = `
-          <h3>Riepilogo Preventivo</h3>
-          <p>📄 Pagine B/N: ${bn}</p>
-          <p>🎨 Pagine colore: ${col}</p>
-          <p>📦 Copie: ${copie}</p>
-          <p>🖨️ Tipo stampa: ${extra > 0 ? "Solo fronte" : "Fronte-retro"}</p>
-          <p>🎨 Copertina: ${copertinaSelect.options[copertinaSelect.selectedIndex].text || "—"}</p>
-          <p>💰 Totale: <strong>€${totale.toFixed(2)}</strong></p>
-          <p>📊 Prezzo per copia:
-          <!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <title>Preventivo Tesi</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
-  <style>
-    body { font-family: sans-serif; max-width: 700px; margin: 2em auto; background: #fffaf3; }
-    label { display: block; margin-top: 1em; font-weight: bold; }
-    input, select { padding: 0.5em; width: 100%; max-width: 400px; margin-top: 5px; }
-    button { padding: 0.7em 1.2em; background: #a84300; color: white; border: none; border-radius: 4px; margin-top: 1.5em; cursor: pointer; }
-    #preview { margin-top: 1em; max-width: 250px; display: none; border: 1px solid #ccc; }
-    #progress { margin-top: 1em; height: 10px; background: #ddd; width: 100%; max-width: 400px; border-radius: 4px; overflow: hidden; }
-    #bar { height: 100%; width: 0%; background: #a84300; transition: width 0.2s; }
-    #result { margin-top: 2em; background: #fff3e6; padding: 1em; border-radius: 6px; }
-    option { background-repeat: no-repeat; background-position: 5px center; background-size: 24px 24px; padding-left: 32px; }
-  </style>
+  <!-- PDF.js per contare le pagine PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 </head>
 <body>
-  <h2>Preventivo Tesi Stampata a Caldo</h2>
+  <div class="container">
+    <h1>Preventivo Stampa PDF</h1>
 
-  <label for="pdf">📄 Carica PDF:</label>
-  <input type="file" id="pdf" accept="application/pdf" />
+    <!-- 1. Upload e conteggio pagine -->
+    <div class="form-group">
+      <label for="pdfFile">📂 Carica il tuo PDF:</label>
+      <input type="file" id="pdfFile" accept="application/pdf" />
+      <progress id="loadProgress" value="0" max="100"></progress>
+      <p id="pageInfo" style="display:none;">
+        Pagine totali: <span id="pageCount">0</span>
+      </p>
+      <div id="colorInput" class="form-group" style="display:none;">
+        <label for="colorPages">📑 Quante pagine a colori?</label>
+        <input type="number" id="colorPages" value="0" min="0" />
+      </div>
+    </div>
 
-  <label for="copie">📦 Numero copie:</label>
-  <input type="number" id="copie" value="1" min="1" />
+    <!-- 2. Selezione copertina -->
+    <div class="form-group">
+      <label for="coverSelect">🎨 Scegli una copertina:</label>
+      <select id="coverSelect">
+        <option value="">Caricamento in corso…</option>
+      </select>
+      <img id="coverPreview" src="" alt="Anteprima copertina" />
+    </div>
 
-  <label for="stampa">🖨️ Tipo di stampa:</label>
-  <select id="stampa">
-    <option value="0.03">Solo fronte (+€0,03/pagina)</option>
-    <option value="0">Fronte-retro</option>
-  </select>
+    <!-- 3. Opzioni di stampa -->
+    <div class="form-group">
+      <label for="printType">🔁 Tipo di stampa:</label>
+      <select id="printType">
+        <option value="front">Solo fronte (+€0,03/pagina)</option>
+        <option value="duplex">Fronte-retro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="copies">📄 Numero di copie:</label>
+      <input type="number" id="copies" value="1" min="1" />
+    </div>
 
-  <label for="copertina">🎨 Colore copertina:</label>
-  <select id="copertina">
-    <option value="">-- Seleziona --</option>
-    <option style="background-image: url('panama_azzurro.png')" value="panama_azzurro">Panama Azzurro</option>
-    <option style="background-image: url('panama_bianco.png')" value="panama_bianco">Panama Bianco</option>
-    <!-- aggiungi qui tutte le altre copertine con miniature -->
-  </select>
+    <!-- 4. Calcolo e risultato -->
+    <button id="calcBtn">🧮 Calcola preventivo</button>
+    <p id="quoteResult">💶 Preventivo: €0.00</p>
+  </div>
 
-  <img id="preview" src="" alt="Copertina selezionata">
-  <button id="calcola">Calcola Preventivo</button>
-  <div id="progress"><div id="bar"></div></div>
-  <div id="result"></div>
+  <script>
+    // 1. Carica dinamicamente le copertine dal tuo repo GitHub
+    async function loadCovers() {
+      const apiUrl = 'https://api.github.com/repos/copisteriasanfaustino/tesi-preventivo/contents/assets/copertine';
+      const select = document.getElementById('coverSelect');
+      select.innerHTML = '<option value="">Seleziona copertina…</option>';
+      try {
+        const res   = await fetch(apiUrl);
+        const files = await res.json();
+        files
+          .filter(f => /\.(jpe?g|png|gif)$/i.test(f.name))
+          .forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.download_url;
+            opt.text  = f.name.replace(/\.(jpe?g|png|gif)$/i, '');
+            select.appendChild(opt);
+          });
+      } catch (e) {
+        console.error('Impossibile caricare copertine:', e);
+        select.innerHTML = '<option value="">Errore nel caricamento</option>';
+      }
+    }
+
+    // 2. Anteprima copertina al cambio di selezione
+    document.getElementById('coverSelect').addEventListener('change', () => {
+      const src = document.getElementById('coverSelect').value;
+      document.getElementById('coverPreview').src = src;
+    });
+
+    // 3. Conteggio pagine PDF con PDF.js e progress bar
+    document.getElementById('pdfFile').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      const progress = document.getElementById('loadProgress');
+      const pageInfo = document.getElementById('pageInfo');
+      const colorDiv = document.getElementById('colorInput');
+
+      progress.style.display = 'block';
+      pageInfo.style.display = 'none';
+      colorDiv.style.display = 'none';
+
+      reader.onprogress = (evt) => {
+        if (evt.lengthComputable) {
+          const p = Math.round((evt.loaded / evt.total) * 100);
+          progress.value = p;
+        }
+      };
+
+      reader.onload = async () => {
+        const loadingTask = pdfjsLib.getDocument({ data: reader.result });
+        loadingTask.onProgress = (p) => {
+          progress.value = Math.round((p.loaded / p.total) * 100);
+        };
+        const pdf = await loadingTask.promise;
+        const total = pdf.numPages;
+
+        document.getElementById('pageCount').innerText = total;
+        pageInfo.style.display = 'block';
+        colorDiv.style.display = 'block';
+        progress.style.display = 'none';
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+
+    // 4. Calcolo preventivo
+    document.getElementById('calcBtn').addEventListener('click', () => {
+      const totalPages = parseInt(document.getElementById('pageCount').innerText) || 0;
+      const colorPages = parseInt(document.getElementById('colorPages').value) || 0;
+      const bnPages    = totalPages - colorPages;
+      const copies     = parseInt(document.getElementById('copies').value) || 1;
+      const type       = document.getElementById('printType').value;
+
+      const costBn    = 0.05;
+      const costColor = 0.10;
+      const surcharge = (type === 'front') ? 0.03 : 0;
+
+      const perCopy = (bnPages * costBn + colorPages * costColor) + (totalPages * surcharge);
+      const total   = perCopy * copies;
+
+      document.getElementById('quoteResult').innerText =
+        `💶 Preventivo: €${total.toFixed(2)}`;
+    });
+
+    // Inizializza tutto a pagina caricata
+    document.addEventListener('DOMContentLoaded', loadCovers);
+  </script>
+</body>
+</html>
