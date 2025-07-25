@@ -2,425 +2,163 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Preventivo e ordine Tesi</title>
+  <title>Preventivo Tesi Stampata a Caldo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 20px;
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 2em auto;
+      background: #fff8f0;
+      padding: 0 1em;
     }
-    .container {
-      max-width: 900px;
-      margin: auto;
+    h2 {
+      text-align: center;
+      color: #a84300;
+      margin-bottom: 1em;
+    }
+    .card {
       background: #fff;
       padding: 20px;
-      border-radius: 6px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
     }
-    h1 { color: #333; margin-top: 0; }
-
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
-    input, select, button { width: 100%; padding: 8px; box-sizing: border-box;
-      border: 1px solid #ccc; border-radius: 4px; }
-    button {
-      background: #007bff;
+    .card label {
+      display: block;
+      margin-bottom: 1em;
+    }
+    .card input, .card select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      margin-top: 4px;
+    }
+    .card button {
+      width: 100%;
+      background: #a84300;
       color: #fff;
       border: none;
-      font-size: 16px;
+      border-radius: 4px;
+      padding: 14px 0;
+      font-size: 1.1em;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 1em;
     }
-    button:hover { background: #0056b3; }
-
-    #coverGrid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .cover-item {
-      width: 100px;
-      cursor: pointer;
-      border: 2px solid transparent;
+    #progressContainer {
+      display: none;
+      background: #f0e6df;
       border-radius: 4px;
       overflow: hidden;
-      transition: border-color .2s;
+      margin: 1em 0;
     }
-    .cover-item.selected { border-color: #007bff; }
-    .cover-item img { width: 100%; display: block; }
-
-    #coverLargePreview {
-      max-width: 200px;
-      margin-top: 10px;
-      display: none;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+    #progressBar {
+      width: 0;
+      height: 8px;
+      background: #a84300;
+      transition: width .2s;
     }
-    #coverName { margin-top: 5px; font-weight: bold; }
-
-    progress {
-      width: 100%;
-      height: 16px;
-      display: none;
-      margin-top: 5px;
+    #progressText {
+      font-size: .9em;
+      padding: 4px;
     }
-    #pageInfo { display: none; margin-top: 5px; }
-
-    .payment-methods {
-      display: flex;
-      gap: 20px;
-      margin-top: 5px;
-    }
-    .payment-methods label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-    .payment-methods input[disabled] + span {
-      color: #999;
-      cursor: not-allowed;
-    }
-
-    #orderForm { display: none; margin-top: 20px; padding-top: 20px;
-      border-top: 1px solid #ddd; }
-    #addressFields { display: none; }
-
-    #quoteResult, #finalTotal {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 20px;
-      color: #333;
-    }
-
-    #thankYou {
-      display: none;
-      margin-top: 30px;
-      font-size: 20px;
-      color: green;
-      text-align: center;
+    #risultato {
+      background: #fff3e6;
+      padding: 15px;
+      border-radius: 6px;
+      font-size: 1.1em;
+      margin-top: 1em;
     }
   </style>
-  <!-- PDF.js per contare e renderizzare le pagine -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <!-- EmailJS SDK -->
-  <script type="text/javascript"
-    src="https://cdn.emailjs.com/sdk/3.2/email.min.js"></script>
-  <script>
-    emailjs.init('YOUR_EMAILJS_USER_ID'); // sostituisci con il tuo user ID EmailJS
-  </script>
 </head>
 <body>
-  <div class="container">
-    <h1>Preventivo Stampa PDF</h1>
-
-    <!-- 1. Numero copie -->
-    <div class="form-group">
-      <label for="copies">📄 Numero di copie:</label>
-      <input type="number" id="copies" min="1" value="1" />
-    </div>
-
-    <!-- 2. Upload PDF -->
-    <div class="form-group">
-      <label for="pdfFile">📂 Carica il tuo PDF:</label>
-      <input type="file" id="pdfFile" accept="application/pdf" />
-      <progress id="loadProgress" max="100" value="0"></progress>
-      <p id="pageInfo">
-        Pagine: <span id="pageCount">0</span>,
-        B/N: <span id="bwCount">0</span>,
-        Colori: <span id="colorCount">0</span>
-      </p>
-    </div>
-
-    <!-- 3. Griglia copertine -->
-    <div class="form-group">
-      <label>🎨 Scegli una copertina:</label>
-      <div id="coverGrid">Caricamento…</div>
-      <img id="coverLargePreview" alt="Anteprima copertina" />
-      <p id="coverName"></p>
-    </div>
-
-    <!-- 4. Finitura copertina -->
-    <div class="form-group">
-      <label for="coverFinish">🔖 Finitura copertina:</label>
-      <select id="coverFinish">
-        <option value="oro">Oro</option>
-        <option value="argento">Argento</option>
-        <option value="bronzo">Bronzo</option>
-      </select>
-    </div>
-
-    <!-- 5. Tipo di stampa -->
-    <div class="form-group">
-      <label for="printType">🔁 Tipo di stampa:</label>
-      <select id="printType">
-        <option value="duplex">Fronte-retro (B/N €0,07 – Colore €0,50)</option>
-        <option value="front">Solo fronte (+€0,03/faccia)</option>
-      </select>
-    </div>
-
-    <!-- 6. Calcola preventivo -->
-    <button id="calcBtn">🧮 Calcola preventivo</button>
-    <p id="quoteResult">💶 Preventivo: €0.00</p>
-
-    <!-- 7. Invia ordine -->
-    <button id="orderBtn" style="display:none;">✉️ Compila dati e conferma</button>
-
-    <!-- 8. Form d’ordine -->
-    <div id="orderForm">
-      <h2>Dettagli Cliente</h2>
-      <div class="form-group">
-        <label for="firstName">Nome:</label>
-        <input id="firstName" type="text" />
-      </div>
-      <div class="form-group">
-        <label for="lastName">Cognome:</label>
-        <input id="lastName" type="text" />
-      </div>
-      <div class="form-group">
-        <label for="phone">Telefono:</label>
-        <input id="phone" type="tel" />
-      </div>
-      <div class="form-group">
-        <label for="email">Email:</label>
-        <input id="email" type="email" />
-      </div>
-
-      <h2>Consegna e Pagamento</h2>
-      <div class="form-group">
-        <label for="shippingMethod">Modalità di ritiro/consegna:</label>
-        <select id="shippingMethod">
-          <option value="pickup">Ritiro in negozio (gratis)</option>
-          <option value="delivery">Consegna a domicilio (+€10)</option>
+  <h2>🔥 Preventivo Tesi Stampa a Caldo</h2>
+  <div class="card">
+    <form id="formPreventivo">
+      <label>📂 Carica PDF della tesi:
+        <input type="file" id="pdfFile" accept="application/pdf" required>
+      </label>
+      <label>🧮 Numero di copie:
+        <input type="number" id="copie" value="1" min="1">
+      </label>
+      <label>📑 Tipo di stampa:
+        <select id="frontalita">
+          <option value="0.03">Solo fronte (+€0,03/pagina)</option>
+          <option value="0">Fronte/Retro</option>
         </select>
-      </div>
-
-      <div id="addressFields">
-        <div class="form-group">
-          <label for="street">Via:</label>
-          <input id="street" type="text" />
-        </div>
-        <div class="form-group">
-          <label for="civic">Numero civico:</label>
-          <input id="civic" type="text" />
-        </div>
-        <div class="form-group">
-          <label for="zip">CAP:</label>
-          <input id="zip" type="text" />
-        </div>
-        <div class="form-group">
-          <label for="city">Città:</label>
-          <input id="city" type="text" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Metodo di pagamento:</label>
-        <div class="payment-methods">
-          <label>
-            <input type="radio" name="pay" id="paypal" value="PayPal" />
-            <span>PayPal</span>
-          </label>
-          <label>
-            <input type="radio" name="pay" id="bank" value="Bonifico" />
-            <span>Bonifico</span>
-          </label>
-          <label>
-            <input type="radio" name="pay" id="cod" value="Alla consegna" />
-            <span>Alla consegna</span>
-          </label>
-        </div>
-      </div>
-
-      <p id="finalTotal">Totale con spedizione: €0.00</p>
-      <button id="submitOrder">📤 Conferma ordine</button>
+      </label>
+      <button type="submit">Calcola Preventivo</button>
+    </form>
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+      <div id="progressText"></div>
     </div>
-
-    <p id="thankYou">Ordine ricevuto, invieremo conferma quanto prima, grazie!</p>
+    <div id="risultato"></div>
   </div>
-
   <script>
-    let selectedCoverUrl = '';
-    let baseTotal = 0;
-    let pdfFile = null; // riferimento al file caricato
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadCovers();
-      document.getElementById('pdfFile').addEventListener('change', e => {
-        pdfFile = e.target.files[0];
-        handlePdf(e);
-      });
-      document.getElementById('calcBtn').addEventListener('click', calcQuote);
-      document.getElementById('orderBtn').addEventListener('click', () => {
-        document.getElementById('orderForm').style.display = 'block';
-        updateFinalTotal();
-      });
-      document.getElementById('shippingMethod')
-        .addEventListener('change', toggleAddressAndTotal);
-    });
-
-    // Carica copertine
-    async function loadCovers() {
-      const apiUrl = 'https://api.github.com/repos/copisteriasanfaustino/tesi-preventivo/contents';
-      const grid = document.getElementById('coverGrid');
-      grid.innerHTML = '';
-      try {
-        const res = await fetch(apiUrl);
-        const files = await res.json();
-        files.filter(f => /\.(jpe?g|png)$/i.test(f.name))
-          .forEach(f => {
-            const div = document.createElement('div');
-            div.className = 'cover-item';
-            const img = document.createElement('img');
-            img.src = f.download_url;
-            img.alt = f.name;
-            div.appendChild(img);
-            div.addEventListener('click', () => {
-              document.querySelectorAll('.cover-item')
-                .forEach(i=>i.classList.remove('selected'));
-              div.classList.add('selected');
-              selectedCoverUrl = f.download_url;
-              document.getElementById('coverLargePreview').src = f.download_url;
-              document.getElementById('coverLargePreview').style.display = 'block';
-              document.getElementById('coverName').innerText =
-                f.name.replace(/\.(jpe?g|png)$/i,'');
-            });
-            grid.appendChild(div);
-          });
-      } catch(e){
-        grid.innerText = 'Errore caricamento copertine';
-      }
-    }
-
-    // Conteggio pagine B/N vs colore
-    async function handlePdf(e) {
-      const file = pdfFile;
-      if (!file) return;
-      const reader = new FileReader();
-      const prog = document.getElementById('loadProgress');
-      const info = document.getElementById('pageInfo');
-      prog.style.display = 'block';
-      info.style.display = 'none';
-
-      reader.onload = async () => {
-        const pdf = await pdfjsLib.getDocument({ data: reader.result }).promise;
-        let colorCount = 0;
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const vp = page.getViewport({ scale: 0.2 });
-          const cnv = document.createElement('canvas');
-          const ctx = cnv.getContext('2d');
-          cnv.width = vp.width; cnv.height = vp.height;
-          await page.render({ canvasContext: ctx, viewport: vp }).promise;
-          const d = ctx.getImageData(0,0,cnv.width,cnv.height).data;
-          let isColor=false;
-          for (let j=0; j<d.length; j+=4*20) {
-            if (Math.abs(d[j]-d[j+1])>15 ||
-                Math.abs(d[j]-d[j+2])>15 ||
-                Math.abs(d[j+1]-d[j+2])>15) {
-              isColor=true; break;
-            }
-          }
-          if(isColor) colorCount++;
-          prog.value = Math.round(i/pdf.numPages*100);
-        }
-        document.getElementById('pageCount').innerText  = pdf.numPages;
-        document.getElementById('colorCount').innerText = colorCount;
-        document.getElementById('bwCount').innerText    = pdf.numPages - colorCount;
-        prog.style.display = 'none';
-        info.style.display = 'block';
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    // Calcola preventivo
-    function calcQuote() {
-      const copies   = +document.getElementById('copies').value;
-      const bw       = +document.getElementById('bwCount').innerText;
-      const col      = +document.getElementById('colorCount').innerText;
-      const type     = document.getElementById('printType').value;
-      const rateBn   = 0.07;
-      const rateCol  = 0.50;
-      const supFront = 0.03;
-      const coverCost= 20;
-      let bnCost = rateBn, colCost = rateCol;
-      if (type === 'front') {
-        bnCost += supFront;
-        colCost += supFront;
-      }
-      const perCopy = bnCost*bw + colCost*col + coverCost;
-      baseTotal = perCopy * copies;
-      document.getElementById('quoteResult').innerText =
-        `💶 Preventivo: €${baseTotal.toFixed(2)}`;
-      document.getElementById('orderBtn').style.display = 'block';
-    }
-
-    // Gestisci consegna e COD
-    function toggleAddressAndTotal() {
-      const method = document.getElementById('shippingMethod').value;
-      document.getElementById('addressFields').style.display =
-        method === 'delivery' ? 'block' : 'none';
-      const codInp = document.getElementById('cod');
-      codInp.disabled = method === 'delivery';
-      if (codInp.disabled && codInp.checked) codInp.checked = false;
-      updateFinalTotal();
-    }
-
-    // Totale con spedizione
-    function updateFinalTotal() {
-      const ship = document.getElementById('shippingMethod').value === 'delivery' ? 10 : 0;
-      document.getElementById('finalTotal').innerText =
-        `Totale con spedizione: €${(baseTotal + ship).toFixed(2)}`;
-    }
-
-    // Invia email con EmailJS e mostra messaggio di conferma
-    document.getElementById('submitOrder').addEventListener('click', async e => {
+    document.getElementById('formPreventivo').addEventListener('submit', async function (e) {
       e.preventDefault();
-      // Leggi PDF come base64
-      const file = pdfFile;
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const pdfBase64 = reader.result.split(',')[1]; // rimuove data:...;base64,
-        // Prepara parametri
-        const params = {
-          to_email:    'info@sgesanfaustino.it',
-          nome:        document.getElementById('firstName').value,
-          cognome:     document.getElementById('lastName').value,
-          telefono:    document.getElementById('phone').value,
-          email_cliente: document.getElementById('email').value,
-          shipping:    document.getElementById('shippingMethod').value === 'delivery'
-                       ? `Consegna (+€10) - ${document.getElementById('street').value}, ` +
-                         `${document.getElementById('civic').value}, ` +
-                         `${document.getElementById('zip').value} ` +
-                         `${document.getElementById('city').value}`
-                       : 'Ritiro in negozio',
-          pagamento:   document.querySelector('input[name=pay]:checked').value,
-          copie:       document.getElementById('copies').value,
-          pagine_tot:  document.getElementById('pageCount').innerText,
-          bn:          document.getElementById('bwCount').innerText,
-          colori:      document.getElementById('colorCount').innerText,
-          cover:       document.getElementById('coverName').innerText + ' (' +
-                       document.getElementById('coverFinish').value + ')',
-          preventivo:  document.getElementById('quoteResult').innerText.replace('💶 ',''),
-          totale_finale: document.getElementById('finalTotal').innerText.replace('Totale con spedizione: ',''),
-          attachment:  {
-            name: file.name,
-            data: pdfBase64
-          }
-        };
 
-        try {
-          await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', params);
-          document.getElementById('orderForm').style.display = 'none';
-          document.getElementById('thankYou').style.display = 'block';
-        } catch(err) {
-          alert('Errore invio ordine. Riprova più tardi.');
-          console.error(err);
+      const fileInput = document.getElementById('pdfFile');
+      if (!fileInput.files.length) {
+        alert('Carica un file PDF.');
+        return;
+      }
+
+      document.getElementById('risultato').innerHTML = '';
+      document.getElementById('progressContainer').style.display = 'block';
+
+      const buffer = await fileInput.files[0].arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+
+      let bn = 0, col = 0;
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
+
+        const imageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+        let isColor = false;
+
+        for (let p = 0; p < imageData.length; p += 4) {
+          const r = imageData[p], g = imageData[p + 1], b = imageData[p + 2];
+          if (r !== g || g !== b) {
+            isColor = true;
+            break;
+          }
         }
-      };
-      reader.readAsDataURL(file);
+
+        isColor ? col++ : bn++;
+        const pct = Math.round((i / pdf.numPages) * 100);
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('progressText').innerText = `Pagina ${i} di ${pdf.numPages} (${pct}%)`;
+      }
+
+      const copie = +document.getElementById('copie').value;
+      const extraF = +document.getElementById('frontalita').value;
+      const prezzoFisso = 20 * copie;
+      const costoBN = bn * (0.07 + extraF) * copie;
+      const costoCol = col * (0.50 + extraF) * copie;
+      const totale = prezzoFisso + costoBN + costoCol;
+      const perCopia = totale / copie;
+
+      document.getElementById('risultato').innerHTML = `
+        <strong>🧾 Riepilogo Preventivo</strong><br><br>
+        📄 Pagine B/N: ${bn}<br>
+        🎨 Pagine a colori: ${col}<br><br>
+        📦 Prezzo fisso: €20.00 × ${copie} = <strong>€${prezzoFisso.toFixed(2)}</strong><br>
+        🖨️ Stampa B/N: €${(0.07 + extraF).toFixed(2)} × ${bn} × ${copie} = €${costoBN.toFixed(2)}<br>
+        🎨 Stampa colori: €${(0.50 + extraF).toFixed(2)} × ${col} × ${copie} = €${costoCol.toFixed(2)}<br><br>
+        <strong>💰 Totale: €${totale.toFixed(2)}</strong><br>
+        📊 Per copia: €${perCopia.toFixed(2)}
+      `;
+
+      document.getElementById('progressContainer').style.display = 'none';
     });
   </script>
 </body>
