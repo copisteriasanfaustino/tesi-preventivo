@@ -4,157 +4,172 @@
   <meta charset="UTF-8">
   <title>Preventivo Stampa PDF</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 6px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    h1 {
-      margin-top: 0;
-      color: #333;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 5px;
-      color: #555;
-    }
-    input[type="file"],
-    select,
-    input[type="number"] {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    #coverGrid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .cover-item {
-      width: 100px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      border-radius: 4px;
-      overflow: hidden;
-      transition: border-color .2s;
-    }
-    .cover-item.selected {
-      border-color: #007bff;
-    }
-    .cover-item img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-    progress {
-      width: 100%;
-      height: 16px;
-      margin-top: 5px;
-      display: none;
-    }
-    button {
-      background: #007bff;
-      color: #fff;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    p#quoteResult {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 20px;
-      color: #333;
-    }
+    body { font-family: Arial, sans-serif; background: #f2f2f2; margin:0; padding:20px; }
+    .container { max-width: 900px; margin: auto; background: #fff;
+      padding:20px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    h1 { color:#333; margin-top:0; }
+    .form-group { margin-bottom:15px; }
+    label { display:block; font-weight:bold; margin-bottom:5px; color:#555; }
+    input, select, button { width:100%; padding:8px; box-sizing:border-box;
+      border:1px solid #ccc; border-radius:4px; }
+    button { background:#007bff; color:#fff; border:none; font-size:16px; cursor:pointer; }
+    button:hover { background:#0056b3; }
+    #coverGrid { display:flex; flex-wrap:wrap; gap:10px; }
+    .cover-item { width:100px; cursor:pointer; border:2px solid transparent;
+      border-radius:4px; overflow:hidden; transition:border-color .2s; }
+    .cover-item.selected { border-color:#007bff; }
+    .cover-item img { width:100%; display:block; }
+    #coverLargePreview { max-width:200px; margin-top:10px; display:none; }
+    #pageInfo { display:none; margin-top:5px; }
+    progress { width:100%; height:16px; display:none; margin-top:5px; }
+    #orderForm { display:none; margin-top:20px; padding-top:20px; border-top:1px solid #ddd; }
+    #quoteResult { font-size:18px; font-weight:bold; margin-top:20px; color:#333; }
   </style>
-  <!-- PDF.js per contare e renderizzare le pagine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Preventivo Stampa PDF</h1>
 
-    <!-- Prezzi configurabili -->
+    <!-- 1. Numero copie -->
     <div class="form-group">
-      <label for="costBw">Prezzo per pagina B/N (€):</label>
-      <input type="number" id="costBw" value="0.05" step="0.01" />
-    </div>
-    <div class="form-group">
-      <label for="costColor">Prezzo per pagina a colori (€):</label>
-      <input type="number" id="costColor" value="0.10" step="0.01" />
-    </div>
-    <div class="form-group">
-      <label for="surchargeFront">Supplemento solo fronte per pagina (€):</label>
-      <input type="number" id="surchargeFront" value="0.03" step="0.01" />
+      <label for="copies">📄 Numero di copie:</label>
+      <input type="number" id="copies" min="1" value="1" />
     </div>
 
-    <!-- Upload e analisi PDF -->
+    <!-- 2. Upload PDF -->
     <div class="form-group">
       <label for="pdfFile">📂 Carica il tuo PDF:</label>
       <input type="file" id="pdfFile" accept="application/pdf" />
-      <progress id="loadProgress" value="0" max="100"></progress>
-      <p id="pageInfo" style="display:none;">
-        Pagine totali: <span id="pageCount">0</span> —
-        B/N: <span id="bwCount">0</span>, Colori: <span id="colorCount">0</span>
+      <progress id="loadProgress" max="100" value="0"></progress>
+      <p id="pageInfo">
+        Pagine: <span id="pageCount">0</span>,
+        B/N: <span id="bwCount">0</span>,
+        Colori: <span id="colorCount">0</span>
       </p>
     </div>
 
-    <!-- Griglia copertine -->
+    <!-- 3. Griglia copertine -->
     <div class="form-group">
       <label>🎨 Scegli una copertina:</label>
-      <div id="coverGrid">Caricamento copertine…</div>
+      <div id="coverGrid">Caricamento…</div>
+      <img id="coverLargePreview" alt="Anteprima grande" />
+      <p id="coverName"></p>
     </div>
 
-    <!-- Opzioni di stampa -->
+    <!-- 4. Finitura copertina -->
+    <div class="form-group">
+      <label for="coverFinish">🔖 Finitura copertina:</label>
+      <select id="coverFinish">
+        <option value="oro">Oro</option>
+        <option value="argento">Argento</option>
+        <option value="bronzo">Bronzo</option>
+      </select>
+    </div>
+
+    <!-- 5. Tipo di stampa -->
     <div class="form-group">
       <label for="printType">🔁 Tipo di stampa:</label>
       <select id="printType">
-        <option value="front">Solo fronte</option>
-        <option value="duplex">Fronte-retro</option>
+        <option value="duplex">
+          Fronte-retro (B/N €0,07 – Colore €0,50)
+        </option>
+        <option value="front">
+          Solo fronte (+€0,03 per facciata)
+        </option>
       </select>
     </div>
-    <div class="form-group">
-      <label for="copies">📄 Numero di copie:</label>
-      <input type="number" id="copies" value="1" min="1" />
-    </div>
 
-    <!-- Bottone e risultato -->
+    <!-- 6. Calcola e mostra totale -->
     <button id="calcBtn">🧮 Calcola preventivo</button>
     <p id="quoteResult">💶 Preventivo: €0.00</p>
+
+    <!-- 7. Pulsante invio ordine -->
+    <button id="orderBtn" style="display:none;">✉️ Invia ordine</button>
+
+    <!-- 8. Form d’ordine -->
+    <div id="orderForm">
+      <h2>Dettagli Cliente</h2>
+      <div class="form-group">
+        <label for="firstName">Nome:</label>
+        <input id="firstName" type="text" />
+      </div>
+      <div class="form-group">
+        <label for="lastName">Cognome:</label>
+        <input id="lastName" type="text" />
+      </div>
+      <div class="form-group">
+        <label for="phone">Telefono:</label>
+        <input id="phone" type="tel" />
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input id="email" type="email" />
+      </div>
+
+      <h2>Consegna e Pagamento</h2>
+      <div class="form-group">
+        <label for="shippingMethod">Modalità di ritiro/consegna:</label>
+        <select id="shippingMethod">
+          <option value="pickup">Ritiro in negozio (gratis)</option>
+          <option value="delivery">Consegna a domicilio (+€10)</option>
+        </select>
+      </div>
+
+      <div id="addressFields" style="display:none;">
+        <div class="form-group">
+          <label for="street">Via:</label>
+          <input id="street" type="text" />
+        </div>
+        <div class="form-group">
+          <label for="civic">Numero civico:</label>
+          <input id="civic" type="text" />
+        </div>
+        <div class="form-group">
+          <label for="zip">CAP:</label>
+          <input id="zip" type="text" />
+        </div>
+        <div class="form-group">
+          <label for="city">Città:</label>
+          <input id="city" type="text" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Metodo di pagamento:</label>
+        <input type="radio" name="pay" id="paypal" value="paypal" />
+        <label for="paypal">PayPal (marcogussoni23@gmail.com)</label><br>
+        <input type="radio" name="pay" id="bank" value="bank" />
+        <label for="bank">Bonifico (IBAN comunicato via email)</label><br>
+        <input type="radio" name="pay" id="cod" value="cod" />
+        <label for="cod">Pagamento alla consegna</label>
+      </div>
+
+      <p id="finalTotal" style="font-weight:bold;"></p>
+      <button id="submitOrder">📤 Conferma ordine</button>
+    </div>
   </div>
 
   <script>
     let selectedCoverUrl = '';
+    let baseTotal = 0;
 
     document.addEventListener('DOMContentLoaded', () => {
       loadCovers();
       document.getElementById('pdfFile').addEventListener('change', handlePdf);
       document.getElementById('calcBtn').addEventListener('click', calcQuote);
+      document.getElementById('orderBtn').addEventListener('click', () => {
+        document.getElementById('orderForm').style.display = 'block';
+        updateFinalTotal();
+      });
+      document.getElementById('shippingMethod')
+        .addEventListener('change', toggleAddressAndTotal);
     });
 
-    // 1. Carica le copertine dal repo (root della cartella)
+    // Carica copertine dalla root del repo GitHub
     async function loadCovers() {
-      const apiUrl = 'https://api.github.com/repos/copisteriasanfaustino/tesi-preventivo/contents';
+      const apiUrl = 
+        'https://api.github.com/repos/copisteriasanfaustino/tesi-preventivo/contents';
       const grid = document.getElementById('coverGrid');
       grid.innerHTML = '';
       try {
@@ -163,89 +178,109 @@
         files
           .filter(f => /\.(jpe?g|png)$/i.test(f.name))
           .forEach(f => {
-            const item = document.createElement('div');
-            item.className = 'cover-item';
+            const div = document.createElement('div');
+            div.className = 'cover-item';
             const img = document.createElement('img');
             img.src = f.download_url;
             img.alt = f.name;
-            item.appendChild(img);
-            item.addEventListener('click', () => {
+            div.appendChild(img);
+            div.addEventListener('click', () => {
               document.querySelectorAll('.cover-item')
-                      .forEach(i => i.classList.remove('selected'));
-              item.classList.add('selected');
+                .forEach(i=>i.classList.remove('selected'));
+              div.classList.add('selected');
               selectedCoverUrl = f.download_url;
+              document.getElementById('coverLargePreview').src = f.download_url;
+              document.getElementById('coverLargePreview').style.display = 'block';
+              document.getElementById('coverName').innerText =
+                f.name.replace(/\.(jpe?g|png)$/i,'');
             });
-            grid.appendChild(item);
+            grid.appendChild(div);
           });
-      } catch (e) {
+      } catch(e) {
         grid.innerText = 'Errore caricamento copertine';
-        console.error(e);
       }
     }
 
-    // 2. Analisi PDF: conteggio B/N vs colore
+    // Conta pagine B/N vs colore
     async function handlePdf(e) {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      const progress = document.getElementById('loadProgress');
+      const prog = document.getElementById('loadProgress');
       const info = document.getElementById('pageInfo');
-      progress.style.display = 'block';
+      prog.style.display = 'block';
       info.style.display = 'none';
 
       reader.onprogress = evt => {
         if (evt.lengthComputable) {
-          progress.value = Math.round(evt.loaded / evt.total * 100);
+          prog.value = evt.loaded/evt.total*100;
         }
       };
       reader.onload = async () => {
-        const loadingTask = pdfjsLib.getDocument({ data: reader.result });
-        const pdf = await loadingTask.promise;
+        const pdf = await pdfjsLib.getDocument({data:reader.result}).promise;
         let colorCount = 0;
-        for (let i = 1; i <= pdf.numPages; i++) {
+        for (let i=1; i<=pdf.numPages; i++) {
           const page = await pdf.getPage(i);
-          const vp = page.getViewport({ scale: 0.2 });
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          canvas.width = vp.width;
-          canvas.height = vp.height;
-          await page.render({ canvasContext: ctx, viewport: vp }).promise;
-          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-          let isColor = false;
-          for (let j = 0; j < imgData.length; j += 4 * 20) {
-            const r = imgData[j], g = imgData[j+1], b = imgData[j+2];
-            if (Math.abs(r-g) > 15 || Math.abs(r-b) > 15 || Math.abs(g-b) > 15) {
-              isColor = true;
-              break;
+          const vp = page.getViewport({scale:0.2});
+          const cnv = document.createElement('canvas');
+          const ctx = cnv.getContext('2d');
+          cnv.width = vp.width; cnv.height = vp.height;
+          await page.render({canvasContext:ctx,viewport:vp}).promise;
+          const d = ctx.getImageData(0,0,cnv.width,cnv.height).data;
+          let isColor=false;
+          for (let j=0; j<d.length; j+=4*20) {
+            if (Math.abs(d[j]-d[j+1])>15||
+                Math.abs(d[j]-d[j+2])>15||
+                Math.abs(d[j+1]-d[j+2])>15) {
+              isColor=true; break;
             }
           }
-          if (isColor) colorCount++;
-          progress.value = Math.round(i / pdf.numPages * 100);
+          if(isColor) colorCount++;
+          prog.value = i/pdf.numPages*100;
         }
         const total = pdf.numPages;
         document.getElementById('pageCount').innerText = total;
         document.getElementById('colorCount').innerText = colorCount;
         document.getElementById('bwCount').innerText = total - colorCount;
-        progress.style.display = 'none';
-        info.style.display   = 'block';
+        prog.style.display = 'none';
+        info.style.display = 'block';
       };
       reader.readAsArrayBuffer(file);
     }
 
-    // 3. Calcola il preventivo
+    // Calcola preventivo base (stampa + copertina)
     function calcQuote() {
-      const bw     = parseInt(document.getElementById('bwCount').innerText) || 0;
-      const col    = parseInt(document.getElementById('colorCount').innerText) || 0;
-      const copies = parseInt(document.getElementById('copies').value) || 1;
-      const type   = document.getElementById('printType').value;
-      const costBw = parseFloat(document.getElementById('costBw').value);
-      const costCol= parseFloat(document.getElementById('costColor').value);
-      const supF   = parseFloat(document.getElementById('surchargeFront').value);
-      const surcharge = (type === 'front') ? supF : 0;
-      const perCopy = bw * costBw + col * costCol + (bw + col) * surcharge;
-      const total   = perCopy * copies;
+      const copies = +document.getElementById('copies').value;
+      const bw  = +document.getElementById('bwCount').innerText;
+      const col = +document.getElementById('colorCount').innerText;
+      const type= document.getElementById('printType').value;
+      // tariffe
+      const rateBn   = 0.07;
+      const rateCol  = 0.50;
+      const supFront = 0.03;
+      const coverCost= 20;
+      let bnCost  = rateBn, colCost = rateCol;
+      if (type==='front') { bnCost+=supFront; colCost+=supFront; }
+      const perCopy = bnCost*bw + colCost*col + coverCost;
+      baseTotal = perCopy * copies;
       document.getElementById('quoteResult').innerText =
-        `💶 Preventivo: €${total.toFixed(2)}`;
+        `💶 Preventivo: €${baseTotal.toFixed(2)}`;
+      document.getElementById('orderBtn').style.display = 'block';
+    }
+
+    // Mostra/nascondi form e ricalcola totale con spedizione
+    function toggleAddressAndTotal() {
+      const m = document.getElementById('shippingMethod').value;
+      document.getElementById('addressFields').style.display =
+        m==='delivery' ? 'block' : 'none';
+      updateFinalTotal();
+    }
+
+    // Aggiorna totale finale incluso eventuali +10€ sped.
+    function updateFinalTotal() {
+      const ship = document.getElementById('shippingMethod').value==='delivery' ? 10:0;
+      document.getElementById('finalTotal').innerText =
+        `Totale con spedizione: €${(baseTotal+ship).toFixed(2)}`;
     }
   </script>
 </body>
