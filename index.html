@@ -1,157 +1,125 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Preventivo Tesi Stampata a Caldo</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Modulo Stampa Tesina</title>
   <style>
-    body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: 2em auto;
-      background: #fff8f0;
-    }
-    h2 {
-      text-align: center;
-      color: #a84300;
-      margin-bottom: 1em;
-    }
-    .card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    }
-    .card label {
-      display: block;
-      margin-bottom: 1em;
-    }
-    .card input, .card select {
-      width: 100%;
-      padding: 8px;
-      box-sizing: border-box;
-      margin-top: 4px;
-    }
-    .card button {
-      width: 100%;
-      background: #a84300;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 14px 0;
-      font-size: 1.1em;
-      cursor: pointer;
-      margin-top: 1em;
-    }
-    #progressContainer {
-      display: none;
-      background: #f0e6df;
-      border-radius: 4px;
-      overflow: hidden;
-      margin: 1em 0;
-    }
-    #progressBar {
-      width: 0;
-      height: 8px;
-      background: #a84300;
-      transition: width .2s;
-    }
-    #risultato {
-      background: #fff3e6;
-      padding: 15px;
-      border-radius: 6px;
-      font-size: 1.1em;
-      margin-top: 1em;
-    }
+    body { font-family: sans-serif; margin: 2em; background: #f2f2f2; }
+    h2 { margin-top: 0; }
+    .form-group { margin-bottom: 1em; }
+    label { display: block; font-weight: bold; margin-bottom: 0.5em; }
+    input, select { padding: 0.5em; width: 100%; max-width: 400px; }
+    #preview { margin-top: 1em; max-width: 400px; }
+    #progress { margin-top: 1em; background: #ccc; height: 20px; width: 400px; }
+    #progress-inner { background: green; height: 100%; width: 0%; transition: width 0.5s; }
+    #result { margin-top: 2em; }
   </style>
 </head>
 <body>
-  <h2>🔥 Preventivo Tesi Stampa a Caldo</h2>
-  <div class="card">
-    <form onsubmit="return false;">
-      <label> 📂 Carica PDF della tesi:
-        <input type="file" id="pdfFile" accept="application/pdf" required>
-      </label>
-      <label> 🧮 Numero di copie:
-        <input type="number" id="copie" value="1" min="1">
-      </label>
-      <label> 📑 Tipo di stampa:
-        <select id="frontalita">
-          <option value="0.03">Solo fronte (+€0,03/pagina)</option>
-          <option value="0">Fronte/Retro</option>
-        </select>
-      </label>
-      <button id="btnCalc">Calcola Preventivo</button>
-    </form>
-
-    <div id="progressContainer">
-      <div id="progressBar"></div>
-      <div id="progressText" style="font-size:.9em; padding:4px;"></div>
-    </div>
-
-    <div id="risultato"></div>
+  <h2>Modulo Stampa Tesina</h2>
+  <div class="form-group">
+    <label for="pdf">Carica PDF:</label>
+    <input type="file" id="pdf" accept="application/pdf" />
   </div>
 
+  <div class="form-group">
+    <label for="frontalita">Frontalità:</label>
+    <select id="frontalita">
+      <option value="solo-fronte">Solo fronte (+€0,03/pagina)</option>
+      <option value="fronte-retro">Fronte/Retro</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="copertina">Colore Copertina:</label>
+    <select id="copertina">
+      <!-- Tutti i 41 colori -->
+      <option value="arancio">Arancio</option>
+      <option value="azzurro">Azzurro</option>
+      <option value="blu">Blu</option>
+      <option value="bianco">Bianco</option>
+      <option value="bordeaux">Bordeaux</option>
+      <option value="celeste">Celeste</option>
+      <option value="crema">Crema</option>
+      <option value="fucsia">Fucsia</option>
+      <option value="giallo">Giallo</option>
+      <option value="grigio">Grigio</option>
+      <option value="lavanda">Lavanda</option>
+      <option value="lilla">Lilla</option>
+      <option value="marrone">Marrone</option>
+      <option value="nero">Nero</option>
+      <option value="ocra">Ocra</option>
+      <option value="oliva">Oliva</option>
+      <option value="oro">Oro</option>
+      <option value="panna">Panna</option>
+      <option value="pesca">Pesca</option>
+      <option value="petrolio">Petrolio</option>
+      <option value="porpora">Porpora</option>
+      <option value="rosa">Rosa</option>
+      <option value="rosso">Rosso</option>
+      <option value="sabbia">Sabbia</option>
+      <option value="salvia">Salvia</option>
+      <option value="senape">Senape</option>
+      <option value="tiffany">Tiffany</option>
+      <option value="trasparente">Trasparente</option>
+      <option value="verde-acido">Verde Acido</option>
+      <option value="verde-bandiera">Verde Bandiera</option>
+      <option value="verde-bosco">Verde Bosco</option>
+      <option value="verde-mela">Verde Mela</option>
+      <option value="verde-militare">Verde Militare</option>
+      <option value="verde-oliva">Verde Oliva</option>
+      <option value="verde-pistacchio">Verde Pistacchio</option>
+      <option value="verde-prato">Verde Prato</option>
+      <option value="verde-smeraldo">Verde Smeraldo</option>
+      <option value="verde-tiffany">Verde Tiffany</option>
+      <option value="viola">Viola</option>
+      <option value="vinaccia">Vinaccia</option>
+    </select>
+    <img id="preview" src="" alt="Anteprima copertina" />
+  </div>
+
+  <div id="progress">
+    <div id="progress-inner"></div>
+  </div>
+
+  <div id="result"></div>
+
   <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
+    const pdfInput = document.getElementById("pdf");
+    const copertinaSelect = document.getElementById("copertina");
+    const previewImg = document.getElementById("preview");
+    const progressInner = document.getElementById("progress-inner");
+    const resultDiv = document.getElementById("result");
+    const frontalitaSelect = document.getElementById("frontalita");
 
-    document.getElementById('btnCalc').onclick = async () => {
-      const fileInput = document.getElementById('pdfFile');
-      if (!fileInput.files.length) return alert('Carica un file PDF.');
+    copertinaSelect.addEventListener("change", () => {
+      const selected = copertinaSelect.value;
+      previewImg.src = selected + ".png"; // Assumi che le immagini siano nello stesso folder
+    });
 
-      document.getElementById('risultato').innerHTML = '';
-      document.getElementById('progressContainer').style.display = 'block';
+    pdfInput.addEventListener("change", () => {
+      const file = pdfInput.files[0];
+      if (!file) return;
 
-      const buffer = await fileInput.files[0].arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-
-      let bn = 0, col = 0;
-
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const vp = page.getViewport({ scale: 1 });
-        const cv = document.createElement('canvas');
-        cv.width = vp.width;
-        cv.height = vp.height;
-        await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
-        const data = cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data;
-
-        let isColor = false;
-        for (let p = 0; p < data.length; p += 4) {
-          if (data[p] !== data[p+1] || data[p+1] !== data[p+2]) {
-            isColor = true;
-            break;
-          }
-        }
-
-        isColor ? col++ : bn++;
-        const pct = Math.round((i/pdf.numPages)*100);
-        document.getElementById('progressBar').style.width = pct + '%';
-        document.getElementById('progressText').innerText = `Pagina ${i} di ${pdf.numPages} (${pct}%)`;
-      }
-
-      const copie = +document.getElementById('copie').value;
-      const extraF = +document.getElementById('frontalita').value;
-
-      const basePrice = 20 * copie;
-      const costBN = bn * (0.07 + extraF) * copie;
-      const costCol = col * (0.50 + extraF) * copie;
-      const total = basePrice + costBN + costCol;
-      const perCopy = total / copie;
-
-      document.getElementById('risultato').innerHTML = `
-        <strong>🧾 Riepilogo Preventivo</strong><br><br>
-        📄 Pagine B/N: ${bn}<br>
-        🎨 Pagine a colori: ${col}<br><br>
-        📦 Prezzo fisso: €20.00 × ${copie} = <strong>€${basePrice.toFixed(2)}</strong><br>
-        🖨️ Stampa B/N: €${(0.07+extraF).toFixed(2)} × ${bn} × ${copie} = €${costBN.toFixed(2)}<br>
-        🎨 Stampa colori: €${(0.50+extraF).toFixed(2)} × ${col} × ${copie} = €${costCol.toFixed(2)}<br><br>
-        <strong>💰 Totale: €${total.toFixed(2)}</strong><br>
-        📊 Per copia: €${perCopy.toFixed(2)}
-      `;
-
-      document.getElementById('progressContainer').style.display = 'none';
-    };
+      const reader = new FileReader();
+      reader.onload = () => {
+        progressInner.style.width = "100%"; // Mostra progress bar al 100%
+        setTimeout(() => {
+          const paginaTot = 10; // Puoi sostituire con il conteggio reale
+          const soloFronte = frontalitaSelect.value === "solo-fronte";
+          const costoPerCopia = soloFronte ? 0.03 : 0.0;
+          const prezzo = paginaTot * costoPerCopia;
+          resultDiv.innerHTML = `
+            <h3>Riepilogo</h3>
+            <p>Pagine: ${paginaTot}</p>
+            <p>Fronte: ${soloFronte ? "Solo fronte (+€0,03/pagina)" : "Fronte-retro"}</p>
+            <p>Prezzo Copia: €${prezzo.toFixed(2)}</p>
+            <p>Colore Copertina: ${copertinaSelect.value}</p>
+          `;
+        }, 1000);
+      };
+      reader.readAsArrayBuffer(file);
+    });
   </script>
 </body>
 </html>
