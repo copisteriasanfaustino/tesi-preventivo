@@ -1,125 +1,142 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <title>Modulo Stampa Tesina</title>
+  <meta charset="UTF-8">
+  <title>Modulo Preventivo Tesi</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
   <style>
-    body { font-family: sans-serif; margin: 2em; background: #f2f2f2; }
-    h2 { margin-top: 0; }
-    .form-group { margin-bottom: 1em; }
-    label { display: block; font-weight: bold; margin-bottom: 0.5em; }
-    input, select { padding: 0.5em; width: 100%; max-width: 400px; }
-    #preview { margin-top: 1em; max-width: 400px; }
-    #progress { margin-top: 1em; background: #ccc; height: 20px; width: 400px; }
-    #progress-inner { background: green; height: 100%; width: 0%; transition: width 0.5s; }
-    #result { margin-top: 2em; }
+    body { font-family: sans-serif; max-width: 700px; margin: 2em auto; background: #fffaf3; }
+    label { display: block; margin-top: 1em; font-weight: bold; }
+    input, select { padding: 0.5em; width: 100%; max-width: 400px; margin-top: 5px; }
+    button { padding: 0.7em 1.2em; background: #a84300; color: white; border: none; border-radius: 4px; margin-top: 1.5em; cursor: pointer; }
+    #preview { margin-top: 1em; max-width: 250px; display: none; border: 1px solid #ccc; }
+    #progress { margin-top: 1em; height: 10px; background: #ddd; width: 100%; max-width: 400px; border-radius: 4px; overflow: hidden; }
+    #bar { height: 100%; width: 0%; background: #a84300; transition: width 0.2s; }
+    #result { margin-top: 2em; background: #fff3e6; padding: 1em; border-radius: 6px; }
   </style>
 </head>
 <body>
-  <h2>Modulo Stampa Tesina</h2>
-  <div class="form-group">
-    <label for="pdf">Carica PDF:</label>
-    <input type="file" id="pdf" accept="application/pdf" />
-  </div>
+  <h2>Preventivo Tesi Stampata a Caldo</h2>
 
-  <div class="form-group">
-    <label for="frontalita">Frontalità:</label>
-    <select id="frontalita">
-      <option value="solo-fronte">Solo fronte (+€0,03/pagina)</option>
-      <option value="fronte-retro">Fronte/Retro</option>
-    </select>
-  </div>
+  <label for="pdf">📄 Carica PDF:</label>
+  <input type="file" id="pdf" accept="application/pdf" />
 
-  <div class="form-group">
-    <label for="copertina">Colore Copertina:</label>
-    <select id="copertina">
-      <!-- Tutti i 41 colori -->
-      <option value="arancio">Arancio</option>
-      <option value="azzurro">Azzurro</option>
-      <option value="blu">Blu</option>
-      <option value="bianco">Bianco</option>
-      <option value="bordeaux">Bordeaux</option>
-      <option value="celeste">Celeste</option>
-      <option value="crema">Crema</option>
-      <option value="fucsia">Fucsia</option>
-      <option value="giallo">Giallo</option>
-      <option value="grigio">Grigio</option>
-      <option value="lavanda">Lavanda</option>
-      <option value="lilla">Lilla</option>
-      <option value="marrone">Marrone</option>
-      <option value="nero">Nero</option>
-      <option value="ocra">Ocra</option>
-      <option value="oliva">Oliva</option>
-      <option value="oro">Oro</option>
-      <option value="panna">Panna</option>
-      <option value="pesca">Pesca</option>
-      <option value="petrolio">Petrolio</option>
-      <option value="porpora">Porpora</option>
-      <option value="rosa">Rosa</option>
-      <option value="rosso">Rosso</option>
-      <option value="sabbia">Sabbia</option>
-      <option value="salvia">Salvia</option>
-      <option value="senape">Senape</option>
-      <option value="tiffany">Tiffany</option>
-      <option value="trasparente">Trasparente</option>
-      <option value="verde-acido">Verde Acido</option>
-      <option value="verde-bandiera">Verde Bandiera</option>
-      <option value="verde-bosco">Verde Bosco</option>
-      <option value="verde-mela">Verde Mela</option>
-      <option value="verde-militare">Verde Militare</option>
-      <option value="verde-oliva">Verde Oliva</option>
-      <option value="verde-pistacchio">Verde Pistacchio</option>
-      <option value="verde-prato">Verde Prato</option>
-      <option value="verde-smeraldo">Verde Smeraldo</option>
-      <option value="verde-tiffany">Verde Tiffany</option>
-      <option value="viola">Viola</option>
-      <option value="vinaccia">Vinaccia</option>
-    </select>
-    <img id="preview" src="" alt="Anteprima copertina" />
-  </div>
+  <label for="copie">📦 Numero copie:</label>
+  <input type="number" id="copie" value="1" min="1" />
 
-  <div id="progress">
-    <div id="progress-inner"></div>
-  </div>
+  <label for="stampa">🖨️ Tipo di stampa:</label>
+  <select id="stampa">
+    <option value="0.03">Solo fronte (+€0,03/pagina)</option>
+    <option value="0">Fronte-retro</option>
+  </select>
+
+  <label for="copertina">🎨 Colore copertina:</label>
+  <select id="copertina">
+    <option value="">-- Seleziona --</option>
+    <option value="panama_azzurro">Panama Azzurro</option>
+    <option value="panama_bianco">Panama Bianco</option>
+    <option value="panama_celeste">Panama Celeste</option>
+    <option value="panama_laguna">Panama Laguna</option>
+    <option value="panama_lavanda">Panama Lavanda</option>
+    <option value="panama_malva">Panama Malva</option>
+    <option value="panama_rosa">Panama Rosa</option>
+    <option value="panama_rosa_antico">Panama Rosa Antico</option>
+    <option value="panama_turchese">Panama Turchese</option>
+    <option value="panama_viola">Panama Viola</option>
+    <option value="perla_arancio">Perla Arancio</option>
+    <option value="perla_avorio">Perla Avorio</option>
+    <option value="perla_blu">Perla Blu</option>
+    <option value="perla_bordeaux">Perla Bordeaux</option>
+    <option value="perla_giallo">Perla Giallo</option>
+    <option value="perla_grigio">Perla Grigio</option>
+    <option value="perla_navy">Perla Navy</option>
+    <option value="perla_nocciola">Perla Nocciola</option>
+    <option value="perla_rosso">Perla Rosso</option>
+    <option value="perla_verde">Perla Verde</option>
+    <option value="venus_avio">Venus Avio</option>
+    <option value="venus_blu">Venus Blu</option>
+    <option value="venus_blu_elettrico">Venus Blu Elettrico</option>
+    <option value="venus_bordeaux">Venus Bordeaux</option>
+    <option value="venus_ciclamino">Venus Ciclamino</option>
+    <option value="venus_cipria">Venus Cipria</option>
+    <option value="venus_denim">Venus Denim</option>
+    <option value="venus_fucsia">Venus Fucsia</option>
+    <option value="venus_grigio">Venus Grigio</option>
+    <option value="venus_lilla">Venus Lilla</option>
+    <option value="venus_lime">Venus Lime</option>
+    <option value="venus_nero">Venus Nero</option>
+    <option value="venus_rosso">Venus Rosso</option>
+    <option value="venus_sabbia">Venus Sabbia</option>
+    <option value="venus_tiffany">Venus Tiffany</option>
+    <option value="venus_verde">Venus Verde</option>
+  </select>
+
+  <img id="preview" src="" alt="Copertina selezionata">
+
+  <button id="calcola">Calcola Preventivo</button>
+
+  <div id="progress"><div id="bar"></div></div>
 
   <div id="result"></div>
 
   <script>
-    const pdfInput = document.getElementById("pdf");
     const copertinaSelect = document.getElementById("copertina");
-    const previewImg = document.getElementById("preview");
-    const progressInner = document.getElementById("progress-inner");
-    const resultDiv = document.getElementById("result");
-    const frontalitaSelect = document.getElementById("frontalita");
+    const preview = document.getElementById("preview");
 
     copertinaSelect.addEventListener("change", () => {
-      const selected = copertinaSelect.value;
-      previewImg.src = selected + ".png"; // Assumi che le immagini siano nello stesso folder
+      const val = copertinaSelect.value;
+      if (val) {
+        preview.src = val + ".png";
+        preview.alt = copertinaSelect.options[copertinaSelect.selectedIndex].text;
+        preview.style.display = "block";
+      } else {
+        preview.style.display = "none";
+      }
     });
 
-    pdfInput.addEventListener("change", () => {
-      const file = pdfInput.files[0];
-      if (!file) return;
+    document.getElementById("calcola").onclick = async () => {
+      const file = document.getElementById("pdf").files[0];
+      if (!file) return alert("Carica un file PDF.");
+
+      const copie = +document.getElementById("copie").value || 1;
+      const extra = +document.getElementById("stampa").value;
 
       const reader = new FileReader();
-      reader.onload = () => {
-        progressInner.style.width = "100%"; // Mostra progress bar al 100%
-        setTimeout(() => {
-          const paginaTot = 10; // Puoi sostituire con il conteggio reale
-          const soloFronte = frontalitaSelect.value === "solo-fronte";
-          const costoPerCopia = soloFronte ? 0.03 : 0.0;
-          const prezzo = paginaTot * costoPerCopia;
-          resultDiv.innerHTML = `
-            <h3>Riepilogo</h3>
-            <p>Pagine: ${paginaTot}</p>
-            <p>Fronte: ${soloFronte ? "Solo fronte (+€0,03/pagina)" : "Fronte-retro"}</p>
-            <p>Prezzo Copia: €${prezzo.toFixed(2)}</p>
-            <p>Colore Copertina: ${copertinaSelect.value}</p>
-          `;
-        }, 1000);
-      };
-      reader.readAsArrayBuffer(file);
-    });
-  </script>
-</body>
-</html>
+      reader.onload = async () => {
+        const buffer = reader.result;
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+
+        let bn = 0, col = 0;
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const vp = page.getViewport({ scale: 1 });
+          const cv = document.createElement("canvas");
+          cv.width = vp.width; cv.height = vp.height;
+          await page.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise;
+          const img = cv.getContext("2d").getImageData(0,0,cv.width,cv.height).data;
+
+          let isColor = false;
+          for (let p = 0; p < img.length; p += 4) {
+            if (img[p] !== img[p+1] || img[p+1] !== img[p+2]) {
+              isColor = true; break;
+            }
+          }
+          isColor ? col++ : bn++;
+          document.getElementById("bar").style.width = Math.round((i/pdf.numPages)*100) + "%";
+        }
+
+        const base = 20 * copie;
+        const costBN = bn * (0.07 + extra) * copie;
+        const costCol = col * (0.50 + extra) * copie;
+        const totale = base + costBN + costCol;
+        const perCopia = totale / copie;
+
+        document.getElementById("result").innerHTML = `
+          <h3>Riepilogo Preventivo</h3>
+          <p>📄 Pagine B/N: ${bn}</p>
+          <p>🎨 Pagine colore: ${col}</p>
+          <p>📦 Copie: ${copie}</p>
+          <p>🖨️ Tipo stampa: ${extra > 0 ? "Solo fronte" : "Fronte-retro"}</p>
+          <p>🎨 Copertina: ${copertinaSelect.options[copertinaSelect.selectedIndex].text || "—"}</p>
+          <p>💰 Totale: <strong>€${totale.toFixed(2)}</strong></p>
+          <p>📊 Prezzo per copia:
