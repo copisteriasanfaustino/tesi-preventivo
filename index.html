@@ -1,35 +1,154 @@
-<pre><code>&lt;!DOCTYPE html&gt; &lt;html lang="it"&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;title&gt;Ordine Tesi&lt;/title&gt; &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"&gt;&lt;/script&gt; &lt;style&gt; body { font-family: sans-serif; padding: 20px; } fieldset { border: 2px solid #ccc; padding: 15px; margin-bottom: 20px; } label { display: block; margin-bottom: 10px; } .color-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; } .color-grid label { display: flex; flex-direction: column; align-items: center; cursor: pointer; } .color-grid img { border: 2px solid transparent; border-radius: 4px; transition: border-color 0.3s; width: 60px; height: auto; } .color-grid input[type="radio"]:checked + img { border-color: #a84300; } #riepilogo { margin-top: 20px; background: #f7f7f7; padding: 15px; border: 1px solid #ccc; } &lt;/style&gt; &lt;/head&gt; &lt;body&gt;
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Modulo Ordine Tesi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+    label { display: block; margin: 10px 0 5px; }
+    input, select, textarea {
+      width: 100%; padding: 8px;
+      margin-bottom: 15px;
+    }
+    .copertine {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .copertine img {
+      width: 130px;
+      border: 1px solid #ccc;
+      padding: 5px;
+    }
+    #prezzo {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #007700;
+    }
+  </style>
+</head>
+<body>
+  <h1>Modulo Ordine Tesi</h1>
+  <form oninput="calcolaPrezzo()">
+    <label for="nome">Nome e Cognome</label>
+    <input type="text" id="nome" name="nome" required>
 
-&lt;h1&gt;📝 Ordine Tesi&lt;/h1&gt;
+    <label for="copie">Numero copie</label>
+    <input type="number" id="copie" name="copie" value="1" min="1">
 
-&lt;form&gt; &lt;fieldset&gt; &lt;legend&gt;👤 Dati Cliente&lt;/legend&gt; &lt;label&gt;Nome: &lt;input type="text" id="nome" required&gt;&lt;/label&gt; &lt;label&gt;Cognome: &lt;input type="text" id="cognome" required&gt;&lt;/label&gt; &lt;label&gt;Email: &lt;input type="email" id="email" required&gt;&lt;/label&gt; &lt;label&gt;Telefono: &lt;input type="text" id="telefono" required&gt;&lt;/label&gt; &lt;/fieldset&gt;
+    <label for="fronteRetro">Stampa</label>
+    <select id="fronteRetro" name="fronteRetro">
+      <option value="no">Solo fronte</option>
+      <option value="si">Fronte-retro</option>
+    </select>
 
-&lt;fieldset&gt; &lt;legend&gt;📄 Dettagli Tesi&lt;/legend&gt; &lt;label&gt;Carica PDF: &lt;input type="file" id="pdfUpload" accept=".pdf" required&gt;&lt;/label&gt; &lt;label&gt;Solo fronte: &lt;input type="checkbox" id="soloFronte"&gt;&lt;/label&gt; &lt;label&gt;Tipo stampa: &lt;select id="tipoStampa"&gt; &lt;option value="bn"&gt;Bianco/Nero&lt;/option&gt; &lt;option value="colore"&gt;Colore&lt;/option&gt; &lt;/select&gt; &lt;/label&gt; &lt;/fieldset&gt;
+    <label for="colore">Colore copertina</label>
+    <select id="colore" name="colore">
+      <option value="">-- Seleziona --</option>
+      <option value="panama_azzurro">Panama Azzurro</option>
+      <option value="panama_rosso">Panama Rosso</option>
+      <option value="panama_verde">Panama Verde</option>
+      <option value="panama_blu">Panama Blu</option>
+      <option value="panama_giallo">Panama Giallo</option>
+      <option value="venus_rosso">Venus Rosso</option>
+      <option value="venus_nero">Venus Nero</option>
+      <option value="venus_bordeaux">Venus Bordeaux</option>
+      <option value="venus_viola">Venus Viola</option>
+      <option value="venus_blu">Venus Blu</option>
+      <option value="lux_blu">Lux Blu</option>
+      <option value="lux_verde">Lux Verde</option>
+      <option value="lux_grigio">Lux Grigio</option>
+      <option value="lux_rosso">Lux Rosso</option>
+      <option value="lux_marrone">Lux Marrone</option>
+      <option value="camoscio_marrone">Camoscio Marrone</option>
+      <option value="camoscio_verde">Camoscio Verde</option>
+      <option value="camoscio_rosso">Camoscio Rosso</option>
+      <option value="camoscio_grigio">Camoscio Grigio</option>
+      <option value="camoscio_blu">Camoscio Blu</option>
+      <option value="seta_verde">Seta Verde</option>
+      <option value="seta_rossa">Seta Rossa</option>
+      <option value="seta_blu">Seta Blu</option>
+      <option value="seta_nera">Seta Nera</option>
+      <option value="seta_viola">Seta Viola</option>
+      <option value="seta_argento">Seta Argento</option>
+      <option value="seta_oro">Seta Oro</option>
+      <option value="seta_marrone">Seta Marrone</option>
+      <option value="safari_giallo">Safari Giallo</option>
+      <option value="safari_rosso">Safari Rosso</option>
+      <option value="safari_verde">Safari Verde</option>
+      <option value="safari_marrone">Safari Marrone</option>
+      <option value="safari_blu">Safari Blu</option>
+      <option value="arena_beige">Arena Beige</option>
+      <option value="arena_azzurro">Arena Azzurro</option>
+      <option value="arena_rosso">Arena Rosso</option>
+      <option value="arena_verde">Arena Verde</option>
+      <option value="arena_marrone">Arena Marrone</option>
+      <option value="arena_blu">Arena Blu</option>
+    </select>
 
-&lt;fieldset&gt; &lt;legend&gt;🎨 Copertina&lt;/legend&gt; &lt;div class="color-grid" id="copertine"&gt;&lt;/div&gt; &lt;/fieldset&gt;
+    <label for="note">Note aggiuntive</label>
+    <textarea id="note" name="note"></textarea>
 
-&lt;fieldset&gt; &lt;legend&gt;🚚 Consegna&lt;/legend&gt; &lt;label&gt; &lt;input type="radio" name="consegna" value="negozio" checked&gt; Ritiro in negozio &lt;/label&gt; &lt;label&gt; &lt;input type="radio" name="consegna" value="spedizione"&gt; Spedizione (+€10) &lt;/label&gt; &lt;div id="indirizzo"&gt; &lt;label&gt;Indirizzo: &lt;input type="text" id="via"&gt;&lt;/label&gt; &lt;label&gt;CAP: &lt;input type="text" id="cap"&gt;&lt;/label&gt; &lt;label&gt;Città: &lt;input type="text" id="citta"&gt;&lt;/label&gt; &lt;/div&gt; &lt;/fieldset&gt;
+    <p>Prezzo totale: <span id="prezzo">€15</span></p>
+    <button type="submit">Invia ordine</button>
+  </form>
 
-&lt;fieldset&gt; &lt;legend&gt;💳 Pagamento&lt;/legend&gt; &lt;label&gt; &lt;input type="radio" name="pagamento" value="paypal" checked&gt; PayPal &lt;/label&gt; &lt;label&gt; &lt;input type="radio" name="pagamento" value="bonifico"&gt; Bonifico &lt;/label&gt; &lt;/fieldset&gt; &lt;/form&gt;
+  <h2>Anteprima copertine</h2>
+  <div class="copertine">
+    <img src="panama_azzurro.png" alt="Panama Azzurro">
+    <img src="panama_rosso.png" alt="Panama Rosso">
+    <img src="panama_verde.png" alt="Panama Verde">
+    <img src="panama_blu.png" alt="Panama Blu">
+    <img src="panama_giallo.png" alt="Panama Giallo">
+    <img src="venus_rosso.png" alt="Venus Rosso">
+    <img src="venus_nero.png" alt="Venus Nero">
+    <img src="venus_bordeaux.png" alt="Venus Bordeaux">
+    <img src="venus_viola.png" alt="Venus Viola">
+    <img src="venus_blu.png" alt="Venus Blu">
+    <img src="lux_blu.png" alt="Lux Blu">
+    <img src="lux_verde.png" alt="Lux Verde">
+    <img src="lux_grigio.png" alt="Lux Grigio">
+    <img src="lux_rosso.png" alt="Lux Rosso">
+    <img src="lux_marrone.png" alt="Lux Marrone">
+    <img src="camoscio_marrone.png" alt="Camoscio Marrone">
+    <img src="camoscio_verde.png" alt="Camoscio Verde">
+    <img src="camoscio_rosso.png" alt="Camoscio Rosso">
+    <img src="camoscio_grigio.png" alt="Camoscio Grigio">
+    <img src="camoscio_blu.png" alt="Camoscio Blu">
+    <img src="seta_verde.png" alt="Seta Verde">
+    <img src="seta_rossa.png" alt="Seta Rossa">
+    <img src="seta_blu.png" alt="Seta Blu">
+    <img src="seta_nera.png" alt="Seta Nera">
+    <img src="seta_viola.png" alt="Seta Viola">
+    <img src="seta_argento.png" alt="Seta Argento">
+    <img src="seta_oro.png" alt="Seta Oro">
+    <img src="seta_marrone.png" alt="Seta Marrone">
+    <img src="safari_giallo.png" alt="Safari Giallo">
+    <img src="safari_rosso.png" alt="Safari Rosso">
+    <img src="safari_verde.png" alt="Safari Verde">
+    <img src="safari_marrone.png" alt="Safari Marrone">
+    <img src="safari_blu.png" alt="Safari Blu">
+    <img src="arena_beige.png" alt="Arena Beige">
+    <img src="arena_azzurro.png" alt="Arena Azzurro">
+    <img src="arena_rosso.png" alt="Arena Rosso">
+    <img src="arena_verde.png" alt="Arena Verde">
+    <img src="arena_marrone.png" alt="Arena Marrone">
+    <img src="arena_blu.png" alt="Arena Blu">
+  </div>
 
-&lt;div id="riepilogo"&gt;&lt;/div&gt;
-
-&lt;script&gt; const colori = [ "panama_azzurro","panama_bianco","panama_celeste","panama_laguna","panama_lavanda", "panama_malva","panama_rosa","panama_rosa_antico","panama_turchese","panama_viola", "perla_arancio","perla_avorio","perla_blu","perla_bordeaux","perla_giallo", "perla_grigio","perla_navy","perla_nocciola","perla_rosso","perla_verde", "venus_avio","venus_blu","venus_blu_elettrico","venus_bordeaux","venus_ciclamino", "venus_cipria","venus_denim","venus_fucsia","venus_grigio","venus_lilla", "venus_lime","venus_nero","venus_rosso","venus_sabbia","venus_tiffany","venus_verde" ];
-
-const copertineDiv = document.getElementById("copertine"); colori.forEach(nome =&gt; { const label = document.createElement("label"); const nomeLabel = nome.replace(/_/g, " ").replace(/\b\w/g, l =&gt; l.toUpperCase()); label.innerHTML = &lt;input type="radio" name="copertina" value="${nomeLabel}"&gt;&lt;img src="${nome}.png" alt="${nomeLabel}"&gt;; copertineDiv.appendChild(label); });
-
-const indirizzoDiv = document.getElementById("indirizzo"); document.querySelectorAll('input[name="consegna"]').forEach(input =&gt; { input.addEventListener("change", () =&gt; { indirizzoDiv.style.display = input.value === "spedizione" ? "block" : "none"; calcola(); }); });
-
-document.getElementById("pdfUpload").addEventListener("change", async (e) =&gt; { const file = e.target.files[0]; if (!file) return;
-
-const reader = new FileReader(); reader.onload = async () =&gt; { const data = new Uint8Array(reader.result); const pdf = await pdfjsLib.getDocument({ data }).promise; const numPages = pdf.numPages;
-
-let bnPages = 0, colorePages = 0;
-
-for (let i = 1; i &lt;= numPages; i++) { const page = await pdf.getPage(i); const ops = await page.getOperatorList(); const isColor = ops.fnArray.includes(92) || ops.fnArray.includes(93); isColor ? colorePages++ : bnPages++; }
-
-calcola(numPages, bnPages, colorePages); }; reader.readAsArrayBuffer(file); });
-
-document.addEventListener("change", () =&gt; calcola());
-
-function calcola(numPages = 0, bnPages = 0, colorePages = 0) { const nome = document.getElementById("nome").value; const cognome = document.getElementById("cognome").value; const email = document.getElementById("email").value; const telefono = document.get
+  <script>
+    function calcolaPrezzo() {
+      let copie = parseInt(document.getElementById("copie").value);
+      let fronteRetro = document.getElementById("fronteRetro").value;
+      let prezzo = 15 + ((copie - 1) * 5);
+      if (fronteRetro === "si") prezzo += 2;
+      document.getElementById("prezzo").textContent = "€" + prezzo;
+    }
+  </script>
+</body>
+</html>
