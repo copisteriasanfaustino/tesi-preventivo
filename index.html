@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Preventivo Stampa Tesi</title>
+  <title>Preventivo Stampa PDF</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -240,7 +240,6 @@
         .addEventListener('change', toggleAddressAndTotal);
     });
 
-    // Carica copertine dalla root del repo
     async function loadCovers() {
       const apiUrl = 'https://api.github.com/repos/copisteriasanfaustino/tesi-preventivo/contents';
       const grid = document.getElementById('coverGrid');
@@ -273,7 +272,6 @@
       }
     }
 
-    // Conteggio automatico B/N vs colore
     async function handlePdf(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -321,7 +319,6 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // Calcolo preventivo base + copertina
     function calcQuote() {
       const copies = +document.getElementById('copies').value;
       const bw     = +document.getElementById('bwCount').innerText;
@@ -343,7 +340,6 @@
       document.getElementById('orderBtn').style.display = 'block';
     }
 
-    // Mostra indirizzo e gestisci disabilitazione COD
     function toggleAddressAndTotal() {
       const method = document.getElementById('shippingMethod').value;
       document.getElementById('addressFields').style.display =
@@ -354,12 +350,58 @@
       updateFinalTotal();
     }
 
-    // Ricalcola totale finale con spese di spedizione
     function updateFinalTotal() {
       const ship = document.getElementById('shippingMethod').value === 'delivery' ? 10 : 0;
       document.getElementById('finalTotal').innerText =
         `Totale con spedizione: €${(baseTotal + ship).toFixed(2)}`;
     }
+  </script>
+
+  <!-- Mailto script per invio riepilogo -->
+  <script>
+    const SALES_EMAIL = 'info@sgesanfaustino.it';
+
+    document.getElementById('submitOrder').addEventListener('click', e => {
+      e.preventDefault();
+
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName  = document.getElementById('lastName').value.trim();
+      const phone     = document.getElementById('phone').value.trim();
+      const email     = document.getElementById('email').value.trim();
+      const shipping  = document.getElementById('shippingMethod').value === 'delivery'
+                        ? `Consegna a domicilio (+€10)\nVia ${document.getElementById('street').value}, ` +
+                          `${document.getElementById('civic').value} – ` +
+                          `${document.getElementById('zip').value} ${document.getElementById('city').value}`
+                        : 'Ritiro in negozio (gratis)';
+      const payment   = document.querySelector('input[name=pay]:checked')?.value || '–';
+      const quote     = document.getElementById('quoteResult').innerText.replace('💶 Preventivo: ','');
+      const total     = document.getElementById('finalTotal').innerText.replace('Totale con spedizione: ','');
+
+      const body = [
+        `Nuovo ordine stampa PDF`,
+        `——————————————`,
+        `Cliente: ${firstName} ${lastName}`,
+        `Tel: ${phone}`,
+        `Email: ${email}`,
+        ``,
+        `Modalità di ritiro/consegna:`,
+        shipping,
+        ``,
+        `Pagamento: ${payment}`,
+        ``,
+        `Dettagli preventivo:`,
+        `Preventivo base: ${quote}`,
+        `Totale finale: ${total}`,
+        ``,
+        `Grazie per averci scelto!`
+      ].join('\n');
+
+      const mailto = `mailto:${SALES_EMAIL}`
+                   + `?subject=${encodeURIComponent('Nuovo ordine di stampe')}`
+                   + `&body=${encodeURIComponent(body)}`;
+
+      window.location.href = mailto;
+    });
   </script>
 </body>
 </html>
