@@ -1,202 +1,35 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <title>Preventivo Tesi Stampata a Caldo</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: 2em auto;
-      background: #fff8f0;
-    }
-    h2 {
-      text-align: center;
-      color: #a84300;
-      margin-bottom: 1em;
-    }
-    .card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    }
-    .card label {
-      display: block;
-      margin-bottom: 1em;
-    }
-    .card input,
-    .card select {
-      width: 100%;
-      padding: 8px;
-      box-sizing: border-box;
-      margin-top: 4px;
-    }
-    .card button {
-      width: 100%;
-      background: #a84300;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 14px 0;
-      font-size: 1.1em;
-      cursor: pointer;
-      margin-top: 1em;
-    }
-    #progressContainer {
-      display: none;
-      background: #f0e6df;
-      border-radius: 4px;
-      overflow: hidden;
-      margin: 1em 0;
-    }
-    #progressBar {
-      width: 0;
-      height: 8px;
-      background: #a84300;
-      transition: width .2s;
-    }
-    #risultato {
-      background: #fff3e6;
-      padding: 15px;
-      border-radius: 6px;
-      font-size: 1.1em;
-      margin-top: 1em;
-    }
-  </style>
-</head>
-<body>
-  <h2>🔥 Preventivo Tesi Stampa a Caldo</h2>
-  <div class="card">
-    <form onsubmit="return false;">
-      <label>
-        📂 Carica PDF della tesi:
-        <input type="file" id="pdfFile" accept="application/pdf" required>
-      </label>
+<pre><code>&lt;!DOCTYPE html&gt; &lt;html lang="it"&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;title&gt;Ordine Tesi&lt;/title&gt; &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"&gt;&lt;/script&gt; &lt;style&gt; body { font-family: sans-serif; padding: 20px; } fieldset { border: 2px solid #ccc; padding: 15px; margin-bottom: 20px; } label { display: block; margin-bottom: 10px; } .color-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; } .color-grid label { display: flex; flex-direction: column; align-items: center; cursor: pointer; } .color-grid img { border: 2px solid transparent; border-radius: 4px; transition: border-color 0.3s; width: 60px; height: auto; } .color-grid input[type="radio"]:checked + img { border-color: #a84300; } #riepilogo { margin-top: 20px; background: #f7f7f7; padding: 15px; border: 1px solid #ccc; } &lt;/style&gt; &lt;/head&gt; &lt;body&gt;
 
-      <label>
-        🧮 Numero di copie:
-        <input type="number" id="copie" value="1" min="1">
-      </label>
+&lt;h1&gt;📝 Ordine Tesi&lt;/h1&gt;
 
-      <label>
-        📑 Tipo di stampa:
-        <select id="frontalita">
-          <option value="0.03">Solo fronte (+€0,03/pagina)</option>
-          <option value="0">Fronte/Retro</option>
-        </select>
-      </label>
-<label>
-  🎨 Seleziona colore copertina:
-  <div class="color-grid">
-    <label><input type="radio" name="copertina" value="Panama Azzurro" required><img src="panama_azzurro.png" alt="Panama Azzurro" width="60"></label>
-    <label><input type="radio" name="copertina" value="Panama Bianco"><img src="panama_bianco.png" alt="Panama Bianco" width="60"></label>
-    <label><input type="radio" name="copertina" value="Panama Celeste"><img src="panama_celeste.png" alt="Panama Celeste" width="60"></label>
-    <label><input type="radio" name="copertina" value="Panama Laguna"><img src="panama_laguna.png" alt="Panama Laguna" width="60"></label>
-    <label><input type="radio" name="copertina" value="Panama Lavanda"><img src="panama_lavanda.png" alt="Panama Lavanda" width="60"></label>
-    <label><input type="radio" name="copertina" value="Panama Malva"><img src="panama_malva.png" alt="Panama Malva" width="60"></label>
-    <label><input type="radio" name="copertina" value="Panama Rosa"><img src="panama_rosa.png" alt="Panama Rosa" width="60"></label>
-    <label><input type="radio" name="copertina" value="Panama Rosa Antico"><img src="panama_rosa_antico.png" alt="Panama Rosa Antico" width="60"></label>
-    <label><input type="radio" name="copertina" value="Panama Turchese"><img src="panama_turchese.png" alt="Panama Turchese" width="60"></label>
-    <label><input type="radio" name="copertina" value="Panama Viola"><img src="panama_viola.png" alt="Panama Viola" width="60"></label>
-    <label><input type="radio" name="copertina" value="Perla Arancio"><img src="perla_arancio.png" alt="Perla Arancio" width="60"></label>
-    <label><input type="radio" name="copertina" value="Perla Avorio"><img src="perla_avorio.png" alt="Perla Avorio" width="60"></label>
-    <label><input type="radio" name="copertina" value="Perla Blu"><img src="perla_blu.png" alt="Perla Blu" width="60"></label>
-    <label><input type="radio" name="copertina" value="Perla Bordeaux"><img src="perla_bordeaux.png" alt="Perla Bordeaux" width="60"></label>
-    <label><input type="radio" name="copertina" value="Perla Giallo"><img src="perla_giallo.png" alt="Perla Giallo" width="60"></label>
-    <label><input type="radio" name="copertina" value="Perla Grigio"><img src="perla_grigio.png" alt="Perla Grigio" width="60"></label>
-    <label><input type="radio" name="copertina" value="Perla Navy"><img src="perla_navy.png" alt="Perla Navy" width="60"></label>
-    <label><input type="radio" name="copertina" value="Perla Nocciola"><img src="perla_nocciola.png" alt="Perla Nocciola" width="60"></label>
-    <label><input type="radio" name="copertina" value="Perla Rosso"><img src="perla_rosso.png" alt="Perla Rosso" width="60"></label>
-    <label><input type="radio" name="copertina" value="Perla Verde"><img src="perla_verde.png" alt="Perla Verde" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Avio"><img src="venus_avio.png" alt="Venus Avio" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Blu"><img src="venus_blu.png" alt="Venus Blu" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Blu Elettrico"><img src="venus_blu_elettrico.png" alt="Venus Blu Elettrico" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Bordeaux"><img src="venus_bordeaux.png" alt="Venus Bordeaux" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Ciclamino"><img src="venus_ciclamino.png" alt="Venus Ciclamino" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Cipria"><img src="venus_cipria.png" alt="Venus Cipria" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Denim"><img src="venus_denim.png" alt="Venus Denim" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Fucsia"><img src="venus_fucsia.png" alt="Venus Fucsia" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Grigio"><img src="venus_grigio.png" alt="Venus Grigio" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Lilla"><img src="venus_lilla.png" alt="Venus Lilla" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Lime"><img src="venus_lime.png" alt="Venus Lime" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Nero"><img src="venus_nero.png" alt="Venus Nero" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Rosso"><img src="venus_rosso.png" alt="Venus Rosso" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Sabbia"><img src="venus_sabbia.png" alt="Venus Sabbia" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Tiffany"><img src="venus_tiffany.png" alt="Venus Tiffany" width="60"></label>
-    <label><input type="radio" name="copertina" value="Venus Verde"><img src="venus_verde.png" alt="Venus Verde" width="60"></label>
-  </div>
-</label>
+&lt;form&gt; &lt;fieldset&gt; &lt;legend&gt;👤 Dati Cliente&lt;/legend&gt; &lt;label&gt;Nome: &lt;input type="text" id="nome" required&gt;&lt;/label&gt; &lt;label&gt;Cognome: &lt;input type="text" id="cognome" required&gt;&lt;/label&gt; &lt;label&gt;Email: &lt;input type="email" id="email" required&gt;&lt;/label&gt; &lt;label&gt;Telefono: &lt;input type="text" id="telefono" required&gt;&lt;/label&gt; &lt;/fieldset&gt;
 
-      <button id="btnCalc">Calcola Preventivo</button>
-    </form>
+&lt;fieldset&gt; &lt;legend&gt;📄 Dettagli Tesi&lt;/legend&gt; &lt;label&gt;Carica PDF: &lt;input type="file" id="pdfUpload" accept=".pdf" required&gt;&lt;/label&gt; &lt;label&gt;Solo fronte: &lt;input type="checkbox" id="soloFronte"&gt;&lt;/label&gt; &lt;label&gt;Tipo stampa: &lt;select id="tipoStampa"&gt; &lt;option value="bn"&gt;Bianco/Nero&lt;/option&gt; &lt;option value="colore"&gt;Colore&lt;/option&gt; &lt;/select&gt; &lt;/label&gt; &lt;/fieldset&gt;
 
-    <div id="progressContainer">
-      <div id="progressBar"></div>
-      <div id="progressText" style="font-size:.9em; padding:4px;"></div>
-    </div>
+&lt;fieldset&gt; &lt;legend&gt;🎨 Copertina&lt;/legend&gt; &lt;div class="color-grid" id="copertine"&gt;&lt;/div&gt; &lt;/fieldset&gt;
 
-    <div id="risultato"></div>
-  </div>
+&lt;fieldset&gt; &lt;legend&gt;🚚 Consegna&lt;/legend&gt; &lt;label&gt; &lt;input type="radio" name="consegna" value="negozio" checked&gt; Ritiro in negozio &lt;/label&gt; &lt;label&gt; &lt;input type="radio" name="consegna" value="spedizione"&gt; Spedizione (+€10) &lt;/label&gt; &lt;div id="indirizzo"&gt; &lt;label&gt;Indirizzo: &lt;input type="text" id="via"&gt;&lt;/label&gt; &lt;label&gt;CAP: &lt;input type="text" id="cap"&gt;&lt;/label&gt; &lt;label&gt;Città: &lt;input type="text" id="citta"&gt;&lt;/label&gt; &lt;/div&gt; &lt;/fieldset&gt;
 
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
+&lt;fieldset&gt; &lt;legend&gt;💳 Pagamento&lt;/legend&gt; &lt;label&gt; &lt;input type="radio" name="pagamento" value="paypal" checked&gt; PayPal &lt;/label&gt; &lt;label&gt; &lt;input type="radio" name="pagamento" value="bonifico"&gt; Bonifico &lt;/label&gt; &lt;/fieldset&gt; &lt;/form&gt;
 
-    document.getElementById('btnCalc').onclick = async () => {
-      const fileInput = document.getElementById('pdfFile');
-      if (!fileInput.files.length) return alert('Carica un file PDF.');
-      document.getElementById('risultato').innerHTML = '';
-      document.getElementById('progressContainer').style.display = 'block';
+&lt;div id="riepilogo"&gt;&lt;/div&gt;
 
-      const buffer = await fileInput.files[0].arrayBuffer();
-      const pdf    = await pdfjsLib.getDocument({ data: buffer }).promise;
-      let bn = 0, col = 0;
+&lt;script&gt; const colori = [ "panama_azzurro","panama_bianco","panama_celeste","panama_laguna","panama_lavanda", "panama_malva","panama_rosa","panama_rosa_antico","panama_turchese","panama_viola", "perla_arancio","perla_avorio","perla_blu","perla_bordeaux","perla_giallo", "perla_grigio","perla_navy","perla_nocciola","perla_rosso","perla_verde", "venus_avio","venus_blu","venus_blu_elettrico","venus_bordeaux","venus_ciclamino", "venus_cipria","venus_denim","venus_fucsia","venus_grigio","venus_lilla", "venus_lime","venus_nero","venus_rosso","venus_sabbia","venus_tiffany","venus_verde" ];
 
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const vp   = page.getViewport({ scale: 1 });
-        const cv   = document.createElement('canvas');
-        cv.width = vp.width; cv.height = vp.height;
-        await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+const copertineDiv = document.getElementById("copertine"); colori.forEach(nome =&gt; { const label = document.createElement("label"); const nomeLabel = nome.replace(/_/g, " ").replace(/\b\w/g, l =&gt; l.toUpperCase()); label.innerHTML = &lt;input type="radio" name="copertina" value="${nomeLabel}"&gt;&lt;img src="${nome}.png" alt="${nomeLabel}"&gt;; copertineDiv.appendChild(label); });
 
-        const data = cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data;
-        let isColor = false;
-        for (let p = 0; p < data.length; p += 4) {
-          if (data[p]!==data[p+1] || data[p+1]!==data[p+2]) {
-            isColor = true; break;
-          }
-        }
-        isColor ? col++ : bn++;
+const indirizzoDiv = document.getElementById("indirizzo"); document.querySelectorAll('input[name="consegna"]').forEach(input =&gt; { input.addEventListener("change", () =&gt; { indirizzoDiv.style.display = input.value === "spedizione" ? "block" : "none"; calcola(); }); });
 
-        const pct = Math.round((i/pdf.numPages)*100);
-        document.getElementById('progressBar').style.width = pct + '%';
-        document.getElementById('progressText').innerText =
-          `Pagina ${i} di ${pdf.numPages} (${pct}%)`;
-      }
+document.getElementById("pdfUpload").addEventListener("change", async (e) =&gt; { const file = e.target.files[0]; if (!file) return;
 
-      const copie  = +document.getElementById('copie').value;
-      const extraF = +document.getElementById('frontalita').value;
+const reader = new FileReader(); reader.onload = async () =&gt; { const data = new Uint8Array(reader.result); const pdf = await pdfjsLib.getDocument({ data }).promise; const numPages = pdf.numPages;
 
-      const basePrice = 20 * copie;
-      const costBN    = bn  * (0.07 + extraF) * copie;
-      const costCol   = col * (0.50 + extraF) * copie;
-      const total     = basePrice + costBN + costCol;
-      const perCopy   = total / copie;
+let bnPages = 0, colorePages = 0;
 
-      document.getElementById('risultato').innerHTML = `
-        <strong>🧾 Riepilogo Preventivo</strong><br><br>
-        📄 Pagine B/N: ${bn}<br>
-        🎨 Pagine a colori: ${col}<br><br>
-        📦 Prezzo fisso: €20.00 × ${copie} = <strong>€${basePrice.toFixed(2)}</strong><br>
-        🖨️ Stampa B/N: €${(0.07+extraF).toFixed(2)} × ${bn} × ${copie} = €${costBN.toFixed(2)}<br>
-        🎨 Stampa colori: €${(0.50+extraF).toFixed(2)} × ${col} × ${copie} = €${costCol.toFixed(2)}<br><br>
-        <strong>💰 Totale: €${total.toFixed(2)}</strong><br>
-        📊 Per copia: €${perCopy.toFixed(2)}
-      `;
-      document.getElementById('progressContainer').style.display = 'none';
-    };
-  </script>
-</body>
-</html>
+for (let i = 1; i &lt;= numPages; i++) { const page = await pdf.getPage(i); const ops = await page.getOperatorList(); const isColor = ops.fnArray.includes(92) || ops.fnArray.includes(93); isColor ? colorePages++ : bnPages++; }
+
+calcola(numPages, bnPages, colorePages); }; reader.readAsArrayBuffer(file); });
+
+document.addEventListener("change", () =&gt; calcola());
+
+function calcola(numPages = 0, bnPages = 0, colorePages = 0) { const nome = document.getElementById("nome").value; const cognome = document.getElementById("cognome").value; const email = document.getElementById("email").value; const telefono = document.get
